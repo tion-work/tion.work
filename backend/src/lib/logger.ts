@@ -1,0 +1,77 @@
+import winston from 'winston';
+import { LogLevel } from '../types';
+
+const logLevel: LogLevel['level'] = (process.env.LOG_LEVEL as LogLevel['level']) || 'info';
+
+const logger = winston.createLogger({
+  level: logLevel,
+  format: winston.format.combine(
+    winston.format.timestamp({
+      format: 'YYYY-MM-DD HH:mm:ss',
+    }),
+    winston.format.errors({ stack: true }),
+    winston.format.json(),
+    winston.format.prettyPrint()
+  ),
+  defaultMeta: { 
+    service: 'tion-work-api',
+    version: process.env.npm_package_version || '1.0.0',
+  },
+  transports: [
+    new winston.transports.File({ 
+      filename: 'logs/error.log', 
+      level: 'error',
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    }),
+    new winston.transports.File({ 
+      filename: 'logs/combined.log',
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    }),
+  ],
+});
+
+// 在非生产环境中添加控制台输出
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple()
+    )
+  }));
+}
+
+// 创建请求日志记录器
+export const requestLogger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ 
+      filename: 'logs/requests.log',
+      maxsize: 5242880, // 5MB
+      maxFiles: 10,
+    }),
+  ],
+});
+
+// 创建性能日志记录器
+export const performanceLogger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ 
+      filename: 'logs/performance.log',
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    }),
+  ],
+});
+
+export default logger;

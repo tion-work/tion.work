@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      HOST: 0.0.0.0
+      DATABASE_URL: postgres://postgres:password@host.docker.internal:5432/tion_work?sslmode=disable
+      REDIS_URL: redis://host.docker.internal:6379/0
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "3000:3001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
