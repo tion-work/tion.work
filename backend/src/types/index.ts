@@ -9,7 +9,7 @@ export interface Tool {
   updatedAt: string;
 }
 
-export type ToolCategory = 'code' | 'data' | 'security' | 'utility' | 'design' | 'text';
+export type ToolCategory = "code" | "data" | "security" | "utility" | "design" | "text";
 
 export interface ToolProcessRequest {
   toolId: string;
@@ -52,11 +52,11 @@ export interface UsageStats {
 
 export interface Feedback {
   id: string;
-  type: 'bug' | 'feature' | 'general';
+  type: "bug" | "feature" | "general";
   subject: string;
   message: string;
   email?: string;
-  status: 'pending' | 'in_progress' | 'resolved' | 'closed';
+  status: "pending" | "in_progress" | "resolved" | "closed";
   createdAt: string;
   updatedAt: string;
 }
@@ -78,7 +78,7 @@ export interface RedisConfig {
 }
 
 export interface LogLevel {
-  level: 'error' | 'warn' | 'info' | 'debug';
+  level: "error" | "warn" | "info" | "debug";
 }
 
 export interface RateLimitConfig {

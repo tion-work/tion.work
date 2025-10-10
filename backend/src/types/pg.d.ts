@@ -1,5 +1,5 @@
 // PG 模块类型声明
-declare module 'pg' {
+declare module "pg" {
   export interface PoolConfig {
     host?: string;
     port?: number;
@@ -11,6 +11,7 @@ declare module 'pg' {
     min?: number;
     idleTimeoutMillis?: number;
     connectionTimeoutMillis?: number;
+    connectionString?: string;
   }
 
   export class Pool {

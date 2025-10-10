@@ -4,12 +4,21 @@ export interface Tool {
   description: string;
   category: ToolCategory;
   icon: string;
+  color: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export type ToolCategory = 'code' | 'data' | 'security' | 'utility' | 'design' | 'text';
+export type ToolCategory =
+  | "code"
+  | "data"
+  | "security"
+  | "utility"
+  | "design"
+  | "text";
+
+export type Language = "zh" | "en";
 
 export interface ToolProcessRequest {
   toolId: string;
@@ -27,7 +36,7 @@ export interface ToolProcessResponse {
 export interface ToolOption {
   key: string;
   label: string;
-  type: 'string' | 'number' | 'boolean' | 'select';
+  type: "string" | "number" | "boolean" | "select";
   defaultValue: any;
   options?: { label: string; value: any }[];
   description?: string;
@@ -80,7 +89,7 @@ export interface PaginatedResponse<T = any> extends ApiResponse<T[]> {
 }
 
 export interface Theme {
-  mode: 'light' | 'dark' | 'system';
+  mode: "light" | "dark" | "system";
 }
 
 export interface Settings {
@@ -93,6 +102,7 @@ export interface Settings {
 export interface HistoryItem {
   id: string;
   toolId: string;
+  toolName: string;
   input: string;
   output: string;
   timestamp: string;
@@ -110,7 +120,7 @@ export interface SearchResult {
 
 export interface Notification {
   id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: "success" | "error" | "warning" | "info";
   title: string;
   message: string;
   duration?: number;
@@ -153,19 +163,19 @@ export interface FooterProps {
 export interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "destructive";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
   loading?: boolean;
   className?: string;
-  type?: 'button' | 'submit' | 'reset';
+  type?: "button" | "submit" | "reset";
 }
 
 export interface InputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'url';
+  type?: "text" | "email" | "password" | "number" | "url";
   disabled?: boolean;
   error?: string;
   label?: string;
@@ -190,6 +200,7 @@ export interface CardProps {
   className?: string;
   hover?: boolean;
   onClick?: () => void;
+  id?: string;
 }
 
 export interface ModalProps {
@@ -197,7 +208,7 @@ export interface ModalProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export interface ToastProps {
@@ -206,7 +217,7 @@ export interface ToastProps {
 }
 
 export interface LoadingProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   text?: string;
   className?: string;
 }

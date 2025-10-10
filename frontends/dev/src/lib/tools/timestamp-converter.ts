@@ -1,61 +1,187 @@
-import { BaseTool } from './base';
-import { ToolCategory } from '@/types';
+import { ToolCategory } from "@/types";
+import { BaseTool } from "./base";
 
 export class TimestampConverterTool extends BaseTool {
-  id = 'timestamp-converter';
-  name = '时间戳转换器';
-  description = '时间戳与日期格式相互转换';
-  category: ToolCategory = 'data';
-  icon = 'clock';
+  id = "timestamp-converter";
+  name = "时间戳转换器";
+  description = "时间戳与日期格式相互转换";
+  category: ToolCategory = "utility";
+  icon = "clock";
+  color = "bg-orange-500";
+  inputLanguage = "text";
+  inputPlaceholder = "请输入时间戳或日期...";
+  outputLanguage = "text";
+  initialInput = "";
   options = [
     {
-      key: 'operation',
-      label: '操作',
-      type: 'select' as const,
-      defaultValue: 'toDate',
+      name: "inputFormat",
+      label: "输入格式",
+      type: "select" as const,
+      defaultValue: "auto",
       options: [
-        { label: '时间戳转日期', value: 'toDate' },
-        { label: '日期转时间戳', value: 'toTimestamp' },
+        { label: "自动检测", value: "auto" },
+        { label: "时间戳（秒）", value: "timestamp" },
+        { label: "时间戳（毫秒）", value: "timestamp_ms" },
+        { label: "ISO 8601", value: "iso" },
+        { label: "YYYY-MM-DD", value: "date" },
       ],
-      description: '选择转换方向',
+      description: "选择输入格式",
     },
     {
-      key: 'format',
-      label: '格式',
-      type: 'select' as const,
-      defaultValue: 'iso',
+      name: "outputFormat",
+      label: "输出格式",
+      type: "select" as const,
+      defaultValue: "iso",
       options: [
-        { label: 'ISO 8601', value: 'iso' },
-        { label: '本地时间', value: 'local' },
-        { label: 'UTC 时间', value: 'utc' },
-        { label: '自定义格式', value: 'custom' },
+        { label: "ISO 8601", value: "iso" },
+        { label: "时间戳（秒）", value: "timestamp" },
+        { label: "时间戳（毫秒）", value: "timestamp_ms" },
+        { label: "YYYY-MM-DD HH:mm:ss", value: "datetime" },
+        { label: "YYYY-MM-DD", value: "date" },
       ],
-      description: '选择输出格式',
-    },
-    {
-      key: 'customFormat',
-      label: '自定义格式',
-      type: 'string' as const,
-      defaultValue: 'YYYY-MM-DD HH:mm:ss',
-      description: '自定义日期格式 (如: YYYY-MM-DD HH:mm:ss)',
+      description: "选择输出格式",
     },
   ];
 
-  async process(input: string, options: Record<string, any> = {}): Promise<string> {
+  getLocalizedContent(language: "zh" | "en") {
+    if (language === "en") {
+      return {
+        name: "Timestamp Converter",
+        description: "Convert between timestamps and date formats",
+        inputPlaceholder: "Please enter timestamp or date...",
+        options: [
+          {
+            name: "inputFormat",
+            label: "Input Format",
+            type: "select",
+            defaultValue: "auto",
+            description: "Choose input format",
+            options: [
+              { label: "Auto Detect", value: "auto" },
+              { label: "Timestamp (seconds)", value: "timestamp" },
+              { label: "Timestamp (milliseconds)", value: "timestamp_ms" },
+              { label: "ISO 8601", value: "iso" },
+              { label: "YYYY-MM-DD", value: "date" },
+            ],
+          },
+          {
+            name: "outputFormat",
+            label: "Output Format",
+            type: "select",
+            defaultValue: "iso",
+            description: "Choose output format",
+            options: [
+              { label: "ISO 8601", value: "iso" },
+              { label: "Timestamp (seconds)", value: "timestamp" },
+              { label: "Timestamp (milliseconds)", value: "timestamp_ms" },
+              { label: "YYYY-MM-DD HH:mm:ss", value: "datetime" },
+              { label: "YYYY-MM-DD", value: "date" },
+            ],
+          },
+        ],
+      };
+    }
+
+    return {
+      name: "时间戳转换器",
+      description: "时间戳与日期格式相互转换",
+      inputPlaceholder: "请输入时间戳或日期...",
+      options: [
+        {
+          name: "inputFormat",
+          label: "输入格式",
+          type: "select",
+          defaultValue: "auto",
+          description: "选择输入格式",
+          options: [
+            { label: "自动检测", value: "auto" },
+            { label: "时间戳（秒）", value: "timestamp" },
+            { label: "时间戳（毫秒）", value: "timestamp_ms" },
+            { label: "ISO 8601", value: "iso" },
+            { label: "YYYY-MM-DD", value: "date" },
+          ],
+        },
+        {
+          name: "outputFormat",
+          label: "输出格式",
+          type: "select",
+          defaultValue: "iso",
+          description: "选择输出格式",
+          options: [
+            { label: "ISO 8601", value: "iso" },
+            { label: "时间戳（秒）", value: "timestamp" },
+            { label: "时间戳（毫秒）", value: "timestamp_ms" },
+            { label: "YYYY-MM-DD HH:mm:ss", value: "datetime" },
+            { label: "YYYY-MM-DD", value: "date" },
+          ],
+        },
+      ],
+    };
+  }
+
+  async process(
+    input: string,
+    options: Record<string, any> = {}
+  ): Promise<string> {
+    const { inputFormat = "auto", outputFormat = "iso" } = options;
+
+    if (!input.trim()) {
+      return "";
+    }
+
     try {
-      const { operation = 'toDate', format = 'iso', customFormat = 'YYYY-MM-DD HH:mm:ss' } = options;
-      
-      if (!input.trim()) {
-        return '';
+      let date: Date;
+
+      if (inputFormat === "auto") {
+        // 自动检测格式
+        if (/^\d{10}$/.test(input.trim())) {
+          // 10位时间戳（秒）
+          date = new Date(parseInt(input.trim()) * 1000);
+        } else if (/^\d{13}$/.test(input.trim())) {
+          // 13位时间戳（毫秒）
+          date = new Date(parseInt(input.trim()));
+        } else {
+          // 尝试解析为日期字符串
+          date = new Date(input.trim());
+        }
+      } else if (inputFormat === "timestamp") {
+        date = new Date(parseInt(input.trim()) * 1000);
+      } else if (inputFormat === "timestamp_ms") {
+        date = new Date(parseInt(input.trim()));
+      } else {
+        date = new Date(input.trim());
       }
 
-      if (operation === 'toDate') {
-        return this.timestampToDate(input, format, customFormat);
-      } else {
-        return this.dateToTimestamp(input);
+      if (isNaN(date.getTime())) {
+        throw new Error("无效的日期格式");
+      }
+
+      // 根据输出格式格式化
+      switch (outputFormat) {
+        case "iso":
+          return date.toISOString();
+        case "timestamp":
+          return Math.floor(date.getTime() / 1000).toString();
+        case "timestamp_ms":
+          return date.getTime().toString();
+        case "datetime":
+          return date.toLocaleString("zh-CN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+        case "date":
+          return date.toLocaleDateString("zh-CN");
+        default:
+          return date.toISOString();
       }
     } catch (error) {
-      throw new Error(`时间戳转换失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(
+        `转换失败: ${error instanceof Error ? error.message : "未知错误"}`
+      );
     }
   }
 
@@ -63,70 +189,17 @@ export class TimestampConverterTool extends BaseTool {
     if (!input.trim()) {
       return true;
     }
-    
-    // 检查是否为数字（时间戳）
-    if (/^\d+$/.test(input.trim())) {
-      const timestamp = parseInt(input.trim());
-      const date = new Date(timestamp);
+
+    try {
+      // 尝试解析输入
+      if (/^\d{10}$/.test(input.trim()) || /^\d{13}$/.test(input.trim())) {
+        return true;
+      }
+
+      const date = new Date(input.trim());
       return !isNaN(date.getTime());
+    } catch {
+      return false;
     }
-    
-    // 检查是否为有效日期
-    const date = new Date(input);
-    return !isNaN(date.getTime());
-  }
-
-  private timestampToDate(input: string, format: string, customFormat: string): string {
-    const timestamp = parseInt(input.trim());
-    
-    if (isNaN(timestamp)) {
-      throw new Error('无效的时间戳');
-    }
-    
-    const date = new Date(timestamp);
-    
-    if (isNaN(date.getTime())) {
-      throw new Error('无效的时间戳');
-    }
-    
-    switch (format) {
-      case 'iso':
-        return date.toISOString();
-      case 'local':
-        return date.toLocaleString('zh-CN');
-      case 'utc':
-        return date.toUTCString();
-      case 'custom':
-        return this.formatDate(date, customFormat);
-      default:
-        return date.toString();
-    }
-  }
-
-  private dateToTimestamp(input: string): string {
-    const date = new Date(input.trim());
-    
-    if (isNaN(date.getTime())) {
-      throw new Error('无效的日期格式');
-    }
-    
-    return date.getTime().toString();
-  }
-
-  private formatDate(date: Date, format: string): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    
-    return format
-      .replace('YYYY', year.toString())
-      .replace('MM', month)
-      .replace('DD', day)
-      .replace('HH', hours)
-      .replace('mm', minutes)
-      .replace('ss', seconds);
   }
 }

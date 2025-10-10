@@ -7,7 +7,30 @@ export class CSSMinifierTool extends BaseTool {
   description = '压缩 CSS 代码，移除空白字符和注释，减少文件大小';
   category: ToolCategory = 'code';
   icon = 'file-text';
+  color = "bg-blue-500";
+  inputLanguage = "json";
+  inputPlaceholder = "请输入 JSON 数据...";
+  outputLanguage = "json";
+  initialInput = "";
   options = [];
+
+  getLocalizedContent(language: 'zh' | 'en') {
+    if (language === 'en') {
+      return {
+        name: this.name,
+        description: this.description,
+        inputPlaceholder: this.inputPlaceholder || "Please enter content...",
+        options: [],
+      };
+    }
+    
+    return {
+      name: this.name,
+      description: this.description,
+      inputPlaceholder: this.inputPlaceholder || "请输入内容...",
+      options: [],
+    };
+  }
 
   async process(input: string, options: any = {}): Promise<string> {
     const {

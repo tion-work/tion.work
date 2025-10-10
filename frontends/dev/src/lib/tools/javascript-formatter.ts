@@ -7,7 +7,30 @@ export class JavaScriptFormatterTool extends BaseTool {
   description = '美化和格式化 JavaScript 代码，支持自定义缩进、行长度等选项';
   category: ToolCategory = 'code';
   icon = 'code';
+  color = "bg-blue-500";
+  inputLanguage = "json";
+  inputPlaceholder = "请输入 JSON 数据...";
+  outputLanguage = "json";
+  initialInput = "";
   options = [];
+
+  getLocalizedContent(language: 'zh' | 'en') {
+    if (language === 'en') {
+      return {
+        name: this.name,
+        description: this.description,
+        inputPlaceholder: this.inputPlaceholder || "Please enter content...",
+        options: [],
+      };
+    }
+    
+    return {
+      name: this.name,
+      description: this.description,
+      inputPlaceholder: this.inputPlaceholder || "请输入内容...",
+      options: [],
+    };
+  }
 
   async process(input: string, options: any = {}): Promise<string> {
     const {

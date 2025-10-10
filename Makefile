@@ -1,13 +1,13 @@
 # dev.tion.work Makefile
 # 多前端 + 单后端架构
 
-.PHONY: help install dev build start test lint clean docker-up docker-down docker-logs
+.PHONY: help install dev build start test lint clean check lint-fix docker-up docker-down docker-logs deploy-api deploy-dev deploy-all check-deploy
 
 # 默认目标
 help:
 	@echo "dev.tion.work - 多前端开发者工具集合平台"
 	@echo ""
-	@echo "可用命令:"
+	@echo "🚀 开发命令:"
 	@echo "  install     - 安装所有依赖"
 	@echo "  start       - 启动开发环境 (主站 + 后端)"
 	@echo "  start-all   - 启动所有前端 + 后端"
@@ -20,10 +20,30 @@ help:
 	@echo "  docker      - 使用 Docker 启动后端"
 	@echo "  stop        - 停止所有服务"
 	@echo "  restart     - 重启开发环境 (停止 + 启动)"
+	@echo ""
+	@echo "🔨 构建命令:"
 	@echo "  build       - 构建所有项目"
+	@echo "  build-index - 构建主站"
+	@echo "  build-dev   - 构建开发工具站"
+	@echo "  build-admin - 构建管理后台"
+	@echo "  build-docs  - 构建文档站点"
+	@echo "  build-mobile  - 构建移动端"
+	@echo "  build-backend - 构建后端"
+	@echo ""
+	@echo "🧪 测试和检查:"
 	@echo "  test        - 运行所有测试"
+	@echo "  check       - 代码质量检查 (所有项目)"
 	@echo "  lint        - 运行代码检查"
+	@echo "  lint-fix    - 自动修复代码问题"
+	@echo ""
+	@echo "🧹 清理命令:"
 	@echo "  clean       - 清理构建文件和依赖"
+	@echo ""
+	@echo "🚀 生产部署命令:"
+	@echo "  deploy-api  - 部署后端API到Railway"
+	@echo "  deploy-dev  - 部署开发工具站到Netlify"
+	@echo "  deploy-all  - 部署所有项目到生产环境"
+	@echo "  check-deploy - 检查生产环境部署状态"
 	@echo ""
 
 # 安装依赖
@@ -131,6 +151,18 @@ test:
 	@cd frontends/mobile && npm test || true
 	@cd backend && npm test || true
 
+# 代码质量检查
+check:
+	@echo "🔍 运行代码质量检查..."
+	@for project in index dev admin docs mobile; do \
+		echo "检查 frontends/$$project..."; \
+		cd frontends/$$project && npm run type-check && npm run lint; \
+		cd ../..; \
+	done
+	@cd backend && npm run type-check && npm run lint
+	@./scripts/check-syntax.sh
+
+
 # 代码检查
 lint:
 	@echo "🔍 运行代码检查..."
@@ -140,6 +172,16 @@ lint:
 	@cd frontends/docs && npm run lint || true
 	@cd frontends/mobile && npm run lint || true
 	@cd backend && npm run lint || true
+
+# 自动修复代码问题
+lint-fix:
+	@echo "🔧 自动修复代码问题..."
+	@cd frontends/index && npm run lint -- --fix || true
+	@cd frontends/dev && npm run lint -- --fix || true
+	@cd frontends/admin && npm run lint -- --fix || true
+	@cd frontends/docs && npm run lint -- --fix || true
+	@cd frontends/mobile && npm run lint -- --fix || true
+	@cd backend && npm run lint -- --fix || true
 
 # 清理
 clean:
@@ -155,14 +197,49 @@ clean:
 	@echo "✅ 清理完成"
 
 
-# 部署脚本
+# 生产环境部署脚本
+deploy-api:
+	@echo "🚀 部署后端API到Railway..."
+	@echo "📦 构建后端..."
+	@cd backend && npm run build
+	@echo "🚀 部署到Railway..."
+	@cd backend && railway up --detach
+	@echo "✅ 后端API部署完成: https://api.tion.work"
+
+deploy-dev:
+	@echo "🚀 部署开发工具站到Netlify..."
+	@echo "📦 构建前端..."
+	@cd frontends/dev && npm run build
+	@echo "🚀 部署到Netlify..."
+	@cd frontends/dev && netlify deploy --prod --dir=.next
+	@echo "✅ 开发工具站部署完成: https://dev.tion.work"
+
+deploy-all:
+	@echo "🚀 部署所有项目到生产环境..."
+	@echo "📋 检查部署要求..."
+	@command -v railway >/dev/null 2>&1 || { echo "❌ Railway CLI 未安装，请运行: npm install -g @railway/cli"; exit 1; }
+	@command -v netlify >/dev/null 2>&1 || { echo "❌ Netlify CLI 未安装，请运行: npm install -g netlify-cli"; exit 1; }
+	@echo "✅ 部署要求检查通过"
+	@echo ""
+	@echo "🔨 构建所有项目..."
+	@$(MAKE) build
+	@echo ""
+	@echo "🚀 部署后端API..."
+	@$(MAKE) deploy-api
+	@echo ""
+	@echo "🚀 部署前端应用..."
+	@$(MAKE) deploy-dev
+	@echo ""
+	@echo "🎉 所有项目部署完成！"
+	@echo "📊 访问地址:"
+	@echo "  🛠️  工具站: https://dev.tion.work"
+	@echo "  🔌 API: https://api.tion.work"
+	@echo "  📚 API文档: https://api.tion.work/docs"
+
+# 其他部署命令（保留兼容性）
 deploy-index:
 	@echo "🚀 部署主站到 Netlify..."
 	@cd frontends/index && netlify deploy --prod
-
-deploy-dev:
-	@echo "🚀 部署开发工具站到 Netlify..."
-	@cd frontends/dev && netlify deploy --prod
 
 deploy-admin:
 	@echo "🚀 部署管理后台到 Netlify..."
@@ -177,14 +254,9 @@ deploy-mobile:
 	@cd frontends/mobile && netlify deploy --prod
 
 deploy-backend:
-	@echo "🚀 部署后端到 Railway..."
-	@cd backend && railway up
+	@$(MAKE) deploy-api
 
-deploy-all:
-	@echo "🚀 部署所有项目..."
-	@$(MAKE) deploy-index
-	@$(MAKE) deploy-dev
-	@$(MAKE) deploy-admin
-	@$(MAKE) deploy-docs
-	@$(MAKE) deploy-mobile
-	@$(MAKE) deploy-backend
+# 检查部署状态
+check-deploy:
+	@echo "🔍 检查生产环境部署状态..."
+	@./scripts/check-deployment.sh

@@ -7,7 +7,30 @@ export class JWTDecoderTool extends BaseTool {
   description = '解码和验证 JWT Token，查看头部和载荷信息';
   category: ToolCategory = 'security';
   icon = 'shield';
+  color = "bg-blue-500";
+  inputLanguage = "json";
+  inputPlaceholder = "请输入 JSON 数据...";
+  outputLanguage = "json";
+  initialInput = "";
   options = [];
+
+  getLocalizedContent(language: 'zh' | 'en') {
+    if (language === 'en') {
+      return {
+        name: this.name,
+        description: this.description,
+        inputPlaceholder: this.inputPlaceholder || "Please enter content...",
+        options: [],
+      };
+    }
+    
+    return {
+      name: this.name,
+      description: this.description,
+      inputPlaceholder: this.inputPlaceholder || "请输入内容...",
+      options: [],
+    };
+  }
 
   async process(input: string, options: any = {}): Promise<string> {
     try {

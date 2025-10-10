@@ -7,9 +7,14 @@ export class UrlEncoderTool extends BaseTool {
   description = 'URL 编码和解码工具';
   category: ToolCategory = 'data';
   icon = 'link';
+  color = "bg-blue-500";
+  inputLanguage = "json";
+  inputPlaceholder = "请输入 JSON 数据...";
+  outputLanguage = "json";
+  initialInput = "";
   options = [
     {
-      key: 'operation',
+      name: 'operation',
       label: '操作',
       type: 'select' as const,
       defaultValue: 'encode',
@@ -20,7 +25,7 @@ export class UrlEncoderTool extends BaseTool {
       description: '选择编码或解码操作',
     },
     {
-      key: 'component',
+      name: 'component',
       label: '组件类型',
       type: 'select' as const,
       defaultValue: 'all',
@@ -33,6 +38,24 @@ export class UrlEncoderTool extends BaseTool {
       description: '选择要编码/解码的 URL 组件',
     },
   ];
+
+  getLocalizedContent(language: 'zh' | 'en') {
+    if (language === 'en') {
+      return {
+        name: this.name,
+        description: this.description,
+        inputPlaceholder: this.inputPlaceholder || "Please enter content...",
+        options: [],
+      };
+    }
+    
+    return {
+      name: this.name,
+      description: this.description,
+      inputPlaceholder: this.inputPlaceholder || "请输入内容...",
+      options: [],
+    };
+  }
 
   async process(input: string, options: Record<string, any> = {}): Promise<string> {
     try {

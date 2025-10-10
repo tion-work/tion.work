@@ -1,8 +1,13 @@
-import React from 'react';
-import Link from 'next/link';
-import { Github, Twitter, Mail } from 'lucide-react';
+"use client";
+
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Mail, Twitter } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
 const Footer: React.FC = () => {
+  const { content } = useLanguage();
+
   return (
     <footer className="border-t border-gray-200 bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -14,32 +19,30 @@ const Footer: React.FC = () => {
               <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">T</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">
-                TiON
-              </span>
+              <span className="text-xl font-bold text-gray-900">TiON</span>
             </div>
             <p className="text-sm text-gray-600 max-w-xs">
-              为开发者提供一站式工具解决方案，提升开发效率。
+              {content.footer.description}
             </p>
           </div>
 
           {/* 快速链接 */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-gray-900">
-              快速链接
+              {content.footer.quickLinks}
             </h3>
             <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/stats"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
-                使用统计
+                {content.navigation.stats}
               </Link>
               <Link
                 href="/about"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
-                关于我们
+                {content.navigation.about}
               </Link>
             </div>
           </div>
@@ -47,7 +50,7 @@ const Footer: React.FC = () => {
           {/* 联系方式 */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-gray-900">
-              联系我们
+              {content.footer.contactUs}
             </h3>
             <div className="flex space-x-4">
               <a
@@ -60,7 +63,7 @@ const Footer: React.FC = () => {
                 <Twitter className="h-5 w-5" />
               </a>
               <a
-                href="mailto:contact@dev.tion.work"
+                href="mailto:admin@tion.work"
                 className="text-gray-600 hover:text-gray-900 transition-colors"
                 aria-label="Email"
               >
@@ -73,21 +76,19 @@ const Footer: React.FC = () => {
         {/* 底部版权信息 */}
         <div className="pt-6 border-t border-gray-200">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-            <p className="text-sm text-gray-600">
-              © 2025 dev.tion.work. All rights reserved.
-            </p>
+            <p className="text-sm text-gray-600">{content.footer.copyright}</p>
             <div className="flex space-x-6">
               <Link
                 href="/privacy"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
-                隐私政策
+                {content.common.privacy}
               </Link>
               <Link
                 href="/terms"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
-                服务条款
+                {content.common.terms}
               </Link>
             </div>
           </div>

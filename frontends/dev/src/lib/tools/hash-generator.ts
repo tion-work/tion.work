@@ -7,9 +7,14 @@ export class HashGeneratorTool extends BaseTool {
   description = '生成各种哈希值 (MD5, SHA1, SHA256, SHA512)';
   category: ToolCategory = 'security';
   icon = 'hash';
+  color = "bg-blue-500";
+  inputLanguage = "json";
+  inputPlaceholder = "请输入 JSON 数据...";
+  outputLanguage = "json";
+  initialInput = "";
   options = [
     {
-      key: 'algorithm',
+      name: 'algorithm',
       label: '算法',
       type: 'select' as const,
       defaultValue: 'sha256',
@@ -22,7 +27,7 @@ export class HashGeneratorTool extends BaseTool {
       description: '选择哈希算法',
     },
     {
-      key: 'format',
+      name: 'format',
       label: '格式',
       type: 'select' as const,
       defaultValue: 'hex',
@@ -33,13 +38,31 @@ export class HashGeneratorTool extends BaseTool {
       description: '选择输出格式',
     },
     {
-      key: 'uppercase',
+      name: 'uppercase',
       label: '大写',
       type: 'boolean' as const,
       defaultValue: false,
       description: '十六进制输出使用大写字母',
     },
   ];
+
+  getLocalizedContent(language: 'zh' | 'en') {
+    if (language === 'en') {
+      return {
+        name: this.name,
+        description: this.description,
+        inputPlaceholder: this.inputPlaceholder || "Please enter content...",
+        options: [],
+      };
+    }
+    
+    return {
+      name: this.name,
+      description: this.description,
+      inputPlaceholder: this.inputPlaceholder || "请输入内容...",
+      options: [],
+    };
+  }
 
   async process(input: string, options: Record<string, any> = {}): Promise<string> {
     try {

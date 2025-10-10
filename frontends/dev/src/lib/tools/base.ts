@@ -1,4 +1,4 @@
-import { ToolConfig, ToolCategory } from '../../types';
+import { ToolCategory, ToolConfig } from "../../types";
 
 export abstract class BaseTool {
   abstract id: string;
@@ -6,9 +6,32 @@ export abstract class BaseTool {
   abstract description: string;
   abstract category: ToolCategory;
   abstract icon: string;
+  abstract color: string;
   abstract options: any[];
+  abstract inputLanguage?: string;
+  abstract inputPlaceholder?: string;
+  abstract outputLanguage?: string;
+  abstract initialInput?: string;
 
-  abstract process(input: string, options?: Record<string, any>): Promise<string>;
+  // 多语言支持
+  abstract getLocalizedContent(language: "zh" | "en"): {
+    name: string;
+    description: string;
+    inputPlaceholder?: string;
+    options: Array<{
+      name: string;
+      label: string;
+      description?: string;
+      type: string;
+      defaultValue: any;
+      options?: Array<{ label: string; value: any }>;
+    }>;
+  };
+
+  abstract process(
+    input: string,
+    options?: Record<string, any>
+  ): Promise<string>;
   abstract validate(input: string): boolean;
 
   protected formatError(error: Error): string {
@@ -49,14 +72,15 @@ export class ToolRegistry {
   }
 
   static getByCategory(category: ToolCategory): BaseTool[] {
-    return this.getAll().filter(tool => tool.category === category);
+    return this.getAll().filter((tool) => tool.category === category);
   }
 
   static search(query: string): BaseTool[] {
     const lowercaseQuery = query.toLowerCase();
-    return this.getAll().filter(tool => 
-      tool.name.toLowerCase().includes(lowercaseQuery) ||
-      tool.description.toLowerCase().includes(lowercaseQuery)
+    return this.getAll().filter(
+      (tool) =>
+        tool.name.toLowerCase().includes(lowercaseQuery) ||
+        tool.description.toLowerCase().includes(lowercaseQuery)
     );
   }
 }

@@ -1,88 +1,129 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
-  test:
+  # 前端检查
+  frontend-check:
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        project: [index, dev, admin, docs, mobile]
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontends/${{ matrix.project }}/package-lock.json
+
       - name: Install dependencies
-        run: npm run install:all
-      
-      - name: Run linting
-        run: npm run lint
-      
-      - name: Run type checking
         run: |
-          cd frontend && npm run type-check
-          cd ../backend && npm run type-check
-      
-      - name: Run tests
-        run: npm run test
-      
-      - name: Build frontend
-        run: npm run build:frontend
-      
-      - name: Build backend
-        run: npm run build:backend
+          cd frontends/${{ matrix.project }}
+          npm ci
 
-  deploy-frontend:
-    needs: test
+      - name: TypeScript type check
+        run: |
+          cd frontends/${{ matrix.project }}
+          npm run type-check
+
+      - name: ESLint check
+        run: |
+          cd frontends/${{ matrix.project }}
+          npm run lint
+
+      - name: Build check
+        run: |
+          cd frontends/${{ matrix.project }}
+          npm run build
+
+      - name: Test (if available)
+        run: |
+          cd frontends/${{ matrix.project }}
+          npm run test --if-present
+
+  # 后端检查
+  backend-check:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm run install:all
-      
-      - name: Build frontend
-        run: npm run build:frontend
-      
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v2.0
-        with:
-          publish-dir: './frontend/.next'
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
 
-  deploy-backend:
-    needs: test
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: TypeScript type check
+        run: |
+          cd backend
+          npm run type-check
+
+      - name: ESLint check
+        run: |
+          cd backend
+          npm run lint
+
+      - name: Build check
+        run: |
+          cd backend
+          npm run build
+
+      - name: Test
+        run: |
+          cd backend
+          npm run test
+
+  # 代码质量检查
+  code-quality:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Deploy to Railway
-        uses: railwayapp/railway-deploy@v1
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          railway-token: ${{ secrets.RAILWAY_TOKEN }}
-          service: tion-work-api
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          cd frontends/dev
+          npm ci
+          cd ../../backend
+          npm ci
+
+      - name: Check for syntax errors
+        run: |
+          # 检查所有 TypeScript 文件
+          find . -name "*.ts" -o -name "*.tsx" | xargs npx tsc --noEmit --skipLibCheck
+
+      - name: Check for common issues
+        run: |
+          # 检查未闭合的字符串
+          if grep -r "className.*[^\"']$" frontends/ --include="*.tsx" --include="*.ts"; then
+            echo "❌ 发现未闭合的 className 字符串"
+            exit 1
+          fi
+
+          # 检查未闭合的 JSX 标签
+          if grep -r "<[^>]*$" frontends/ --include="*.tsx" --include="*.ts"; then
+            echo "❌ 发现未闭合的 JSX 标签"
+            exit 1
+          fi
+
+          echo "✅ 代码质量检查通过"

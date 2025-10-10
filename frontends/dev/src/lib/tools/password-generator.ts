@@ -6,120 +6,168 @@ export class PasswordGeneratorTool extends BaseTool {
   name = '密码生成器';
   description = '生成安全的随机密码';
   category: ToolCategory = 'security';
-  icon = 'key';
+  icon = 'shield';
+  color = "bg-red-500";
+  inputLanguage = "text";
+  inputPlaceholder = "点击生成密码...";
+  outputLanguage = "text";
+  initialInput = "";
   options = [
     {
-      key: 'length',
+      name: 'length',
       label: '长度',
       type: 'number' as const,
       defaultValue: 12,
-      description: '密码长度 (8-128)',
+      description: '密码长度',
     },
     {
-      key: 'includeUppercase',
+      name: 'includeUppercase',
       label: '大写字母',
       type: 'boolean' as const,
       defaultValue: true,
-      description: '包含大写字母 A-Z',
+      description: '包含大写字母',
     },
     {
-      key: 'includeLowercase',
+      name: 'includeLowercase',
       label: '小写字母',
       type: 'boolean' as const,
       defaultValue: true,
-      description: '包含小写字母 a-z',
+      description: '包含小写字母',
     },
     {
-      key: 'includeNumbers',
+      name: 'includeNumbers',
       label: '数字',
       type: 'boolean' as const,
       defaultValue: true,
-      description: '包含数字 0-9',
+      description: '包含数字',
     },
     {
-      key: 'includeSymbols',
+      name: 'includeSymbols',
       label: '特殊符号',
       type: 'boolean' as const,
       defaultValue: true,
-      description: '包含特殊符号 !@#$%^&*',
-    },
-    {
-      key: 'excludeSimilar',
-      label: '排除相似字符',
-      type: 'boolean' as const,
-      defaultValue: false,
-      description: '排除容易混淆的字符 (0, O, l, I)',
-    },
-    {
-      key: 'excludeAmbiguous',
-      label: '排除歧义字符',
-      type: 'boolean' as const,
-      defaultValue: false,
-      description: '排除可能引起歧义的字符',
+      description: '包含特殊符号',
     },
   ];
 
-  async process(input: string, options: Record<string, any> = {}): Promise<string> {
-    try {
-      const {
-        length = 12,
-        includeUppercase = true,
-        includeLowercase = true,
-        includeNumbers = true,
-        includeSymbols = true,
-        excludeSimilar = false,
-        excludeAmbiguous = false,
-      } = options;
-
-      // 验证长度
-      const passwordLength = Math.max(8, Math.min(128, parseInt(length) || 12));
-
-      // 构建字符集
-      let charset = '';
-      
-      if (includeUppercase) {
-        charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      }
-      
-      if (includeLowercase) {
-        charset += 'abcdefghijklmnopqrstuvwxyz';
-      }
-      
-      if (includeNumbers) {
-        charset += '0123456789';
-      }
-      
-      if (includeSymbols) {
-        charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-      }
-
-      // 应用排除规则
-      if (excludeSimilar) {
-        charset = charset.replace(/[0OIl1]/g, '');
-      }
-      
-      if (excludeAmbiguous) {
-        charset = charset.replace(/[{}[\]()\/\\~,;.<>]/g, '');
-      }
-
-      if (charset.length === 0) {
-        throw new Error('至少需要选择一种字符类型');
-      }
-
-      // 生成密码
-      let password = '';
-      for (let i = 0; i < passwordLength; i++) {
-        password += charset.charAt(Math.floor(Math.random() * charset.length));
-      }
-
-      return password;
-    } catch (error) {
-      throw new Error(`密码生成失败: ${error instanceof Error ? error.message : '未知错误'}`);
+  getLocalizedContent(language: 'zh' | 'en') {
+    if (language === 'en') {
+      return {
+        name: "Password Generator",
+        description: "Generate secure random passwords",
+        inputPlaceholder: "Click to generate password...",
+        options: [
+          {
+            name: 'length',
+            label: 'Length',
+            type: 'number',
+            defaultValue: 12,
+            description: 'Password length',
+          },
+          {
+            name: 'includeUppercase',
+            label: 'Uppercase',
+            type: 'boolean',
+            defaultValue: true,
+            description: 'Include uppercase letters',
+          },
+          {
+            name: 'includeLowercase',
+            label: 'Lowercase',
+            type: 'boolean',
+            defaultValue: true,
+            description: 'Include lowercase letters',
+          },
+          {
+            name: 'includeNumbers',
+            label: 'Numbers',
+            type: 'boolean',
+            defaultValue: true,
+            description: 'Include numbers',
+          },
+          {
+            name: 'includeSymbols',
+            label: 'Symbols',
+            type: 'boolean',
+            defaultValue: true,
+            description: 'Include special symbols',
+          },
+        ],
+      };
     }
+    
+    return {
+      name: "密码生成器",
+      description: "生成安全的随机密码",
+      inputPlaceholder: "点击生成密码...",
+      options: [
+        {
+          name: 'length',
+          label: '长度',
+          type: 'number',
+          defaultValue: 12,
+          description: '密码长度',
+        },
+        {
+          name: 'includeUppercase',
+          label: '大写字母',
+          type: 'boolean',
+          defaultValue: true,
+          description: '包含大写字母',
+        },
+        {
+          name: 'includeLowercase',
+          label: '小写字母',
+          type: 'boolean',
+          defaultValue: true,
+          description: '包含小写字母',
+        },
+        {
+          name: 'includeNumbers',
+          label: '数字',
+          type: 'boolean',
+          defaultValue: true,
+          description: '包含数字',
+        },
+        {
+          name: 'includeSymbols',
+          label: '特殊符号',
+          type: 'boolean',
+          defaultValue: true,
+          description: '包含特殊符号',
+        },
+      ],
+    };
+  }
+
+  async process(input: string, options: Record<string, any> = {}): Promise<string> {
+    const { 
+      length = 12, 
+      includeUppercase = true, 
+      includeLowercase = true, 
+      includeNumbers = true, 
+      includeSymbols = true 
+    } = options;
+
+    let charset = '';
+    if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+    if (includeNumbers) charset += '0123456789';
+    if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+    if (!charset) {
+      throw new Error('至少选择一种字符类型');
+    }
+
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+
+    return password;
   }
 
   validate(input: string): boolean {
-    // 密码生成器不需要验证输入
     return true;
   }
 }

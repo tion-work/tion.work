@@ -1,56 +1,42 @@
-import React from 'react';
-import { Card } from '@/components/ui/Card';
-import { cn } from '@/lib/utils';
-import { ToolCardProps } from '@/types';
-import { LucideIcon } from 'lucide-react';
+import { Card } from "@/components/ui/Card";
+import { ToolCardProps } from "@/types";
+import { HelpCircle } from "lucide-react";
+import React from "react";
 
-const iconMap: Record<string, LucideIcon> = {
-  code: require('lucide-react').Code,
-  data: require('lucide-react').Database,
-  security: require('lucide-react').Shield,
-  utility: require('lucide-react').Wrench,
-  design: require('lucide-react').Palette,
-  text: require('lucide-react').Type,
-};
-
-const ToolCard: React.FC<ToolCardProps> = ({
+export const ToolCard: React.FC<ToolCardProps> = ({
   tool,
   onClick,
   className,
 }) => {
-  const IconComponent = iconMap[tool.category] || iconMap.utility;
+  // 使用默认图标，避免动态导入的复杂性
+  const IconComponent = HelpCircle;
 
   return (
     <Card
-      className={cn(
-        'tool-card cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02]',
-        className
-      )}
+      className={`p-4 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer group h-full ${
+        className || ""
+      }`}
       onClick={onClick}
     >
-      <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100 text-primary-600  
-            <IconComponent className="h-6 w-6" />
+      <div className="flex flex-col h-full">
+        <div className="flex items-center gap-3 mb-3">
+          <div
+            className={`h-10 w-10 rounded-lg ${tool.color} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}
+          >
+            <IconComponent className="h-5 w-5 text-white" />
           </div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-secondary-900  truncate">
-            {tool.name}
-          </h3>
-          <p className="mt-1 text-sm text-secondary-600  line-clamp-2">
-            {tool.description}
-          </p>
-          <div className="mt-2 flex items-center space-x-2">
-            <span className="inline-flex items-center rounded-full bg-secondary-100 px-2 py-1 text-xs font-medium text-secondary-800  
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              {tool.name}
+            </h3>
+            <span className="inline-block text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full mt-1">
               {tool.category}
             </span>
-            {!tool.isActive && (
-              <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800  
-                Coming Soon
-              </span>
-            )}
           </div>
+        </div>
+        <p className="text-sm text-gray-600 flex-1">{tool.description}</p>
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-xs text-gray-400">点击使用</span>
         </div>
       </div>
     </Card>

@@ -1,69 +1,50 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
-import { CodeEditorProps } from '@/types';
+import { cn } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
+
+interface CodeEditorProps {
+  language: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  readOnly?: boolean;
+  height?: string;
+}
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({
   language,
   value,
   onChange,
+  placeholder = "",
   readOnly = false,
-  placeholder = '',
-  height = '300px',
-  options = {},
-  ...props
+  height = "300px",
 }) => {
-  const [MonacoEditor, setMonacoEditor] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [Editor, setEditor] = useState<any>(null);
 
   useEffect(() => {
-    const loadMonaco = async () => {
-      if (typeof window !== 'undefined') {
-        try {
-          const monaco = await import('@monaco-editor/react');
-          setMonacoEditor(() => monaco.default);
-          setIsLoading(false);
-        } catch (error) {
-          console.error('Failed to load Monaco Editor:', error);
-          setIsLoading(false);
-        }
+    const loadEditor = async () => {
+      try {
+        const { default: MonacoEditor } = await import("@monaco-editor/react");
+        setEditor(() => MonacoEditor);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to load Monaco Editor:", error);
+        setIsLoading(false);
       }
     };
 
-    loadMonaco();
+    loadEditor();
   }, []);
 
-  const defaultOptions = {
-    theme: 'vs-dark',
-    language,
-    value,
-    onChange: (value: string | undefined) => {
-      if (value !== undefined) {
-        onChange(value);
-      }
-    },
-    options: {
-      readOnly,
-      minimap: { enabled: false },
-      scrollBeyondLastLine: false,
-      fontSize: 14,
-      lineNumbers: 'on',
-      wordWrap: 'on',
-      automaticLayout: true,
-      ...options,
-    },
-    height,
-    ...props,
-  };
-
-  if (typeof window === 'undefined' || isLoading) {
+  if (typeof window === "undefined" || isLoading) {
     // Server-side rendering fallback or loading state
     return (
       <div
         className={cn(
-          'flex min-h-[300px] w-full items-center justify-center rounded-md border border-gray-300 bg-gray-50 p-4 font-mono text-sm  
-          readOnly && 'bg-gray-100 
+          "flex min-h-[300px] w-full items-center justify-center rounded-md border border-gray-300 bg-gray-50 p-4 font-mono text-sm",
+          readOnly && "bg-gray-100"
         )}
         style={{ height }}
       >
@@ -73,35 +54,42 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             <span>Loading editor...</span>
           </div>
         ) : (
-          <pre className="whitespace-pre-wrap">
-            {value || placeholder}
-          </pre>
+          <pre className="whitespace-pre-wrap">{value || placeholder}</pre>
         )}
       </div>
     );
   }
 
-  // Client-side Monaco Editor
-  if (MonacoEditor) {
-    return (
-      <div className="w-full rounded-md border border-gray-300 overflow-hidden 
-        <MonacoEditor {...defaultOptions} />
-      </div>
-    );
-  }
-
-  // Fallback for when Monaco fails to load
   return (
     <div
-      className={cn(
-        'min-h-[300px] w-full rounded-md border border-gray-300 bg-gray-50 p-4 font-mono text-sm  
-        readOnly && 'bg-gray-100 
-      )}
+      className="w-full rounded-md border border-gray-300 overflow-hidden"
       style={{ height }}
     >
-      <pre className="whitespace-pre-wrap">
-        {value || placeholder}
-      </pre>
+      <Editor
+        height="100%"
+        language={language}
+        value={value}
+        onChange={onChange}
+        theme="vs-light"
+        options={{
+          readOnly,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          fontSize: 14,
+          lineNumbers: "on",
+          wordWrap: "on",
+          automaticLayout: true,
+          tabSize: 2,
+          insertSpaces: true,
+          renderWhitespace: "selection",
+          selectOnLineNumbers: true,
+          roundedSelection: false,
+          cursorStyle: "line",
+          contextmenu: true,
+          mouseWheelZoom: true,
+          smoothScrolling: true,
+        }}
+      />
     </div>
   );
 };

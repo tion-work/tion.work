@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* 基础样式重置 */
 * {
   box-sizing: border-box;
@@ -12,7 +16,9 @@ body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -47,11 +53,11 @@ a {
   ::-webkit-scrollbar-track {
     background: #2d2d2d;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     background: #555;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     background: #777;
   }
