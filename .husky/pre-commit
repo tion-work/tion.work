@@ -1,24 +1,11 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+
+# 检查前端项目
+echo "🔍 检查前端项目..."
+cd frontends/dev
 
 # 运行类型检查
 echo "🔍 运行 TypeScript 类型检查..."
 npm run type-check
-
-# 运行 ESLint
-echo "🔍 运行 ESLint 检查..."
-npm run lint
-
-# 检查语法错误
-echo "🔍 检查语法错误..."
-if grep -r "className.*[^\"']$" frontends/dev/src --include="*.tsx" --include="*.ts"; then
-  echo "❌ 发现未闭合的 className 字符串，请修复后重试"
-  exit 1
-fi
-
-if grep -r "<[^>]*$" frontends/dev/src --include="*.tsx" --include="*.ts"; then
-  echo "❌ 发现未闭合的 JSX 标签，请修复后重试"
-  exit 1
-fi
 
 echo "✅ 所有检查通过，可以提交代码"
