@@ -1,21 +1,38 @@
-FROM node:20-alpine
+# Build stage
+FROM golang:1.23-alpine AS builder
 
+# Set working directory
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json
-COPY package*.json ./
+# Install dependencies
+RUN apk add --no-cache git
 
-# 安装依赖
-RUN npm ci --only=production
+# Copy go mod files
+COPY go.mod go.sum ./
 
-# 复制源代码
+# Download dependencies
+RUN go mod download
+
+# Copy source code
 COPY . .
 
-# 构建应用
-RUN npm run build
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/main.go
 
-# 暴露端口
-EXPOSE 3001
+# Final stage
+FROM alpine:latest
 
-# 启动命令
-CMD ["npm", "start"]
+# Install ca-certificates for HTTPS requests
+RUN apk --no-cache add ca-certificates
+
+# Set working directory
+WORKDIR /root/
+
+# Copy the binary from builder stage
+COPY --from=builder /app/main .
+
+# Expose port
+EXPOSE 8080
+
+# Run the application
+CMD ["./main"]

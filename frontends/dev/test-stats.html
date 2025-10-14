@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TiON.Work 统计功能测试</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    .button {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background: #0056b3;
+    }
+
+    .stats-display {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+
+    .success {
+      color: #28a745;
+    }
+
+    .error {
+      color: #dc3545;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🧪 TiON.Work 统计功能测试</h1>
+
+    <div class="test-section">
+      <h2>📊 当前统计数据</h2>
+      <div id="stats-display" class="stats-display">
+        <p>正在加载统计数据...</p>
+      </div>
+      <button class="button" onclick="refreshStats()">🔄 刷新统计</button>
+    </div>
+
+    <div class="test-section">
+      <h2>🛠️ 模拟工具使用</h2>
+      <p>点击下面的按钮来模拟不同工具的使用，观察统计数据的变化：</p>
+      <button class="button" onclick="simulateToolUse('json-formatter', true)">JSON 格式化器 (成功)</button>
+      <button class="button" onclick="simulateToolUse('base64-encoder', true)">Base64 编码器 (成功)</button>
+      <button class="button" onclick="simulateToolUse('password-generator', true)">密码生成器 (成功)</button>
+      <button class="button" onclick="simulateToolUse('json-formatter', false)">JSON 格式化器 (失败)</button>
+      <button class="button" onclick="simulateToolUse('css-minifier', true)">CSS 压缩器 (成功)</button>
+    </div>
+
+    <div class="test-section">
+      <h2>🔧 数据管理</h2>
+      <button class="button" onclick="exportData()">📥 导出数据</button>
+      <button class="button" onclick="clearData()">🗑️ 清除数据</button>
+      <button class="button" onclick="addSampleData()">📝 添加示例数据</button>
+    </div>
+
+    <div class="test-section">
+      <h2>📈 实时监控</h2>
+      <div id="realtime-stats" class="stats-display">
+        <p>实时统计数据将在这里显示...</p>
+      </div>
+      <button class="button" onclick="startRealtimeMonitoring()">▶️ 开始实时监控</button>
+      <button class="button" onclick="stopRealtimeMonitoring()">⏹️ 停止监控</button>
+    </div>
+  </div>
+
+  <script>
+    // 模拟 StatsManager 类
+    class TestStatsManager {
+      constructor() {
+        this.storageKey = 'tion-work-stats';
+        this.maxRecords = 10000;
+      }
+
+      recordToolUsage(toolId, success, processingTime) {
+        const usage = {
+          toolId,
+          timestamp: Date.now(),
+          success,
+          processingTime,
+          userAgent: navigator.userAgent,
+        };
+
+        const existingData = this.getStoredData();
+        existingData.push(usage);
+
+        if (existingData.length > this.maxRecords) {
+          existingData.splice(0, existingData.length - this.maxRecords);
+        }
+
+        this.saveData(existingData);
+        this.updateDisplay();
+      }
+
+      getStats() {
+        const data = this.getStoredData();
+        const now = Date.now();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStart = today.getTime();
+
+        const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+        const monthAgo = now - 30 * 24 * 60 * 60 * 1000;
+
+        const totalUses = data.length;
+        const todayUses = data.filter(usage => usage.timestamp >= todayStart).length;
+        const thisWeekUses = data.filter(usage => usage.timestamp >= weekAgo).length;
+        const thisMonthUses = data.filter(usage => usage.timestamp >= monthAgo).length;
+
+        const successfulUses = data.filter(usage => usage.success);
+        const successRate = totalUses > 0 ? (successfulUses.length / totalUses) * 100 : 0;
+
+        const totalProcessingTime = data.reduce((sum, usage) => sum + usage.processingTime, 0);
+        const averageTime = totalUses > 0 ? totalProcessingTime / totalUses : 0;
+
+        const toolUsageCount = {};
+        data.forEach(usage => {
+          toolUsageCount[usage.toolId] = (toolUsageCount[usage.toolId] || 0) + 1;
+        });
+
+        const popularTools = Object.entries(toolUsageCount)
+          .map(([toolId, uses]) => ({ id: toolId, name: toolId, uses }))
+          .sort((a, b) => b.uses - a.uses)
+          .slice(0, 10);
+
+        const recentActivity = data
+          .slice(-10)
+          .reverse()
+          .map(usage => ({
+            toolId: usage.toolId,
+            toolName: usage.toolId,
+            timestamp: usage.timestamp,
+            success: usage.success,
+          }));
+
+        return {
+          totalUses,
+          todayUses,
+          thisWeekUses,
+          thisMonthUses,
+          averageTime: Math.round(averageTime * 100) / 100,
+          successRate: Math.round(successRate * 100) / 100,
+          popularTools,
+          recentActivity,
+        };
+      }
+
+      getStoredData() {
+        try {
+          const stored = localStorage.getItem(this.storageKey);
+          return stored ? JSON.parse(stored) : [];
+        } catch (error) {
+          console.error('Failed to parse stored stats data:', error);
+          return [];
+        }
+      }
+
+      saveData(data) {
+        try {
+          localStorage.setItem(this.storageKey, JSON.stringify(data));
+        } catch (error) {
+          console.error('Failed to save stats data:', error);
+        }
+      }
+
+      clearAllData() {
+        localStorage.removeItem(this.storageKey);
+        this.updateDisplay();
+      }
+
+      exportData() {
+        const data = this.getStoredData();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tion-work-stats-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      updateDisplay() {
+        const stats = this.getStats();
+        const statsDisplay = document.getElementById('stats-display');
+
+        statsDisplay.innerHTML = `
+                    <h3>📊 统计概览</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="text-align: center; padding: 10px; background: #e3f2fd; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #1976d2;">${stats.totalUses}</div>
+                            <div style="font-size: 14px; color: #666;">总使用次数</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: #e8f5e8; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #388e3c;">${stats.todayUses}</div>
+                            <div style="font-size: 14px; color: #666;">今日使用</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: #fff3e0; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #f57c00;">${stats.thisWeekUses}</div>
+                            <div style="font-size: 14px; color: #666;">本周使用</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: #fce4ec; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #c2185b;">${stats.successRate}%</div>
+                            <div style="font-size: 14px; color: #666;">成功率</div>
+                        </div>
+                    </div>
+
+                    <h4>🏆 热门工具</h4>
+                    <div style="margin: 10px 0;">
+                        ${stats.popularTools.length > 0 ?
+            stats.popularTools.map((tool, index) =>
+              `<div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee;">
+                                    <span>${index + 1}. ${tool.name}</span>
+                                    <span style="color: #666;">${tool.uses} 次</span>
+                                </div>`
+            ).join('') :
+            '<p style="color: #666;">暂无数据</p>'
+          }
+                    </div>
+
+                    <h4>🕒 最近活动</h4>
+                    <div style="margin: 10px 0;">
+                        ${stats.recentActivity.length > 0 ?
+            stats.recentActivity.slice(0, 5).map(activity => {
+              const timeAgo = Math.floor((Date.now() - activity.timestamp) / 1000);
+              const timeText = timeAgo < 60 ? `${timeAgo}秒前` :
+                timeAgo < 3600 ? `${Math.floor(timeAgo / 60)}分钟前` :
+                  `${Math.floor(timeAgo / 3600)}小时前`;
+              return `<div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee;">
+                                    <span>${activity.toolName} - ${activity.success ? '成功' : '失败'}</span>
+                                    <span style="color: #666;">${timeText}</span>
+                                </div>`;
+            }).join('') :
+            '<p style="color: #666;">暂无活动</p>'
+          }
+                    </div>
+                `;
+      }
+    }
+
+    const statsManager = new TestStatsManager();
+    let monitoringInterval = null;
+
+    // 模拟工具使用
+    function simulateToolUse(toolId, success) {
+      const processingTime = Math.random() * 2 + 0.1; // 0.1-2.1 秒
+      statsManager.recordToolUsage(toolId, success, processingTime);
+
+      const status = success ? '成功' : '失败';
+      console.log(`✅ 模拟使用 ${toolId}: ${status} (${processingTime.toFixed(2)}s)`);
+    }
+
+    // 刷新统计
+    function refreshStats() {
+      statsManager.updateDisplay();
+      console.log('🔄 统计数据已刷新');
+    }
+
+    // 导出数据
+    function exportData() {
+      statsManager.exportData();
+      console.log('📥 数据已导出');
+    }
+
+    // 清除数据
+    function clearData() {
+      if (confirm('确定要清除所有统计数据吗？')) {
+        statsManager.clearAllData();
+        console.log('🗑️ 数据已清除');
+      }
+    }
+
+    // 添加示例数据
+    function addSampleData() {
+      const tools = ['json-formatter', 'base64-encoder', 'password-generator', 'css-minifier', 'html-minifier'];
+      const count = 20;
+
+      for (let i = 0; i < count; i++) {
+        const tool = tools[Math.floor(Math.random() * tools.length)];
+        const success = Math.random() > 0.1; // 90% 成功率
+        const processingTime = Math.random() * 2 + 0.1;
+        const timestamp = Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000; // 最近7天
+
+        const usage = {
+          toolId: tool,
+          timestamp,
+          success,
+          processingTime,
+          userAgent: navigator.userAgent,
+        };
+
+        const existingData = statsManager.getStoredData();
+        existingData.push(usage);
+        statsManager.saveData(existingData);
+      }
+
+      statsManager.updateDisplay();
+      console.log(`📝 已添加 ${count} 条示例数据`);
+    }
+
+    // 开始实时监控
+    function startRealtimeMonitoring() {
+      if (monitoringInterval) return;
+
+      monitoringInterval = setInterval(() => {
+        const stats = statsManager.getStats();
+        const realtimeDisplay = document.getElementById('realtime-stats');
+
+        realtimeDisplay.innerHTML = `
+                    <h4>📈 实时统计</h4>
+                    <p><strong>总使用次数:</strong> ${stats.totalUses}</p>
+                    <p><strong>今日使用:</strong> ${stats.todayUses}</p>
+                    <p><strong>成功率:</strong> ${stats.successRate}%</p>
+                    <p><strong>平均处理时间:</strong> ${stats.averageTime}秒</p>
+                    <p><strong>最后更新:</strong> ${new Date().toLocaleTimeString()}</p>
+                `;
+      }, 1000);
+
+      console.log('▶️ 实时监控已开始');
+    }
+
+    // 停止实时监控
+    function stopRealtimeMonitoring() {
+      if (monitoringInterval) {
+        clearInterval(monitoringInterval);
+        monitoringInterval = null;
+        console.log('⏹️ 实时监控已停止');
+      }
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function () {
+      statsManager.updateDisplay();
+      console.log('🚀 统计功能测试页面已加载');
+    });
+  </script>
+</body>
+
+</html>

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { CodeEditor } from "@/components/ui/CodeEditor";
 import Loading from "@/components/ui/Loading";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { statsManager } from "@/lib/stats";
 import { ToolRegistry } from "@/lib/tools";
 import { BaseTool } from "@/lib/tools/base";
 import { copyToClipboard, downloadFile } from "@/lib/utils";
@@ -51,9 +52,12 @@ export default function ToolPage() {
 
     setLoading(true);
     setError(null);
+    const startTime = Date.now();
 
     try {
       const result = await tool.process(input, options);
+      const processingTime = (Date.now() - startTime) / 1000; // 转换为秒
+
       setOutput(result);
 
       // 添加到历史记录
@@ -64,6 +68,9 @@ export default function ToolPage() {
         output: result,
         timestamp: new Date().toISOString(),
       });
+
+      // 记录成功的使用统计
+      statsManager.recordToolUsage(tool.id, true, processingTime);
 
       // 处理完成后自动滚动到输出区域
       setTimeout(() => {
@@ -76,6 +83,10 @@ export default function ToolPage() {
         }
       }, 100);
     } catch (err) {
+      const processingTime = (Date.now() - startTime) / 1000;
+
+      // 记录失败的使用统计
+      statsManager.recordToolUsage(tool.id, false, processingTime);
       setError(err instanceof Error ? err.message : "处理失败");
     } finally {
       setLoading(false);

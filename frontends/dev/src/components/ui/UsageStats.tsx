@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { StatsData, statsManager } from "@/lib/stats";
 import { Clock, TrendingUp, Users, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Card } from "./Card";
@@ -8,19 +9,6 @@ import { Card } from "./Card";
 interface UsageStatsProps {
   toolId?: string;
   className?: string;
-}
-
-interface StatsData {
-  totalUses: number;
-  todayUses: number;
-  thisWeekUses: number;
-  averageTime: number;
-  successRate: number;
-  popularTools: Array<{
-    id: string;
-    name: string;
-    uses: number;
-  }>;
 }
 
 export function UsageStats({ toolId, className = "" }: UsageStatsProps) {
@@ -33,53 +21,27 @@ export function UsageStats({ toolId, className = "" }: UsageStatsProps) {
       try {
         setLoading(true);
 
-        // 模拟 API 调用
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // 获取真实统计数据
+        const realStats = statsManager.getStats();
 
-        // 模拟数据 - 使用多语言工具名称
-        const toolNames = {
-          "json-formatter":
-            language === "en" ? "JSON Formatter" : "JSON 格式化器",
-          "base64-encoder":
-            language === "en" ? "Base64 Encoder" : "Base64 编码器",
-          "password-generator":
-            language === "en" ? "Password Generator" : "密码生成器",
-          "css-minifier": language === "en" ? "CSS Minifier" : "CSS 压缩器",
-          "html-minifier": language === "en" ? "HTML Minifier" : "HTML 压缩器",
-        };
-
-        const mockStats: StatsData = {
-          totalUses: 12543,
-          todayUses: 234,
-          thisWeekUses: 1456,
-          averageTime: 1.2,
-          successRate: 98.5,
-          popularTools: [
-            {
-              id: "json-formatter",
-              name: toolNames["json-formatter"],
-              uses: 3421,
-            },
-            {
-              id: "base64-encoder",
-              name: toolNames["base64-encoder"],
-              uses: 2890,
-            },
-            {
-              id: "password-generator",
-              name: toolNames["password-generator"],
-              uses: 2156,
-            },
-            { id: "css-minifier", name: toolNames["css-minifier"], uses: 1890 },
-            {
-              id: "html-minifier",
-              name: toolNames["html-minifier"],
-              uses: 1654,
-            },
-          ],
-        };
-
-        setStats(mockStats);
+        // 如果数据为空，显示默认值
+        if (realStats.totalUses === 0) {
+          const defaultStats: StatsData = {
+            totalUses: 0,
+            todayUses: 0,
+            thisWeekUses: 0,
+            thisMonthUses: 0,
+            averageTime: 0,
+            successRate: 0,
+            popularTools: [],
+            recentActivity: [],
+            hourlyUsage: [],
+            dailyUsage: [],
+          };
+          setStats(defaultStats);
+        } else {
+          setStats(realStats);
+        }
       } catch (error) {
         console.error("Failed to fetch usage stats:", error);
       } finally {
@@ -144,10 +106,10 @@ export function UsageStats({ toolId, className = "" }: UsageStatsProps) {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">
-              {stats.successRate}%
+              {stats.thisMonthUses}
             </div>
             <div className="text-sm text-gray-600">
-              {language === "en" ? "Success Rate" : "成功率"}
+              {language === "en" ? "This Month" : "本月使用"}
             </div>
           </div>
         </div>
@@ -232,45 +194,45 @@ export function UsageStats({ toolId, className = "" }: UsageStatsProps) {
         </div>
       </Card>
 
-      {/* 实时活动 */}
+      {/* 最近活动 */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <Clock className="h-5 w-5" />
-          {language === "en" ? "Real-time Activity" : "实时活动"}
+          {language === "en" ? "Recent Activity" : "最近活动"}
         </h3>
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>
-              {language === "en"
-                ? "User is using JSON Formatter"
-                : "用户正在使用 JSON 格式化器"}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <span>
-              {language === "en"
-                ? "User is using Base64 Encoder"
-                : "用户正在使用 Base64 编码器"}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-            <span>
-              {language === "en"
-                ? "User is using Password Generator"
-                : "用户正在使用密码生成器"}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-            <span>
-              {language === "en"
-                ? "User is using CSS Minifier"
-                : "用户正在使用 CSS 压缩器"}
-            </span>
-          </div>
+          {stats.recentActivity.length > 0 ? (
+            stats.recentActivity.slice(0, 5).map((activity, index) => {
+              const timeAgo = Math.floor(
+                (Date.now() - activity.timestamp) / 1000
+              );
+              const timeText =
+                timeAgo < 60
+                  ? `${timeAgo}s ago`
+                  : timeAgo < 3600
+                  ? `${Math.floor(timeAgo / 60)}m ago`
+                  : `${Math.floor(timeAgo / 3600)}h ago`;
+
+              return (
+                <div key={index} className="flex items-center gap-2 text-sm">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      activity.success ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  ></div>
+                  <span className="flex-1">
+                    {activity.toolName}{" "}
+                    {activity.success ? "completed" : "failed"}
+                  </span>
+                  <span className="text-xs text-gray-500">{timeText}</span>
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-sm text-gray-500 text-center py-4">
+              {language === "en" ? "No recent activity" : "暂无最近活动"}
+            </div>
+          )}
         </div>
       </Card>
     </div>

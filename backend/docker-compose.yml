@@ -1,18 +1,40 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    environment:
-      NODE_ENV: development
-      PORT: 3001
-      HOST: 0.0.0.0
-      DATABASE_URL: postgres://postgres:password@host.docker.internal:5432/tion_work?sslmode=disable
-      REDIS_URL: redis://host.docker.internal:6379/0
-      CORS_ORIGIN: http://localhost:3000
+  tion-backend:
+    build: .
     ports:
-      - "3000:3001"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - GIN_MODE=release
+      - DATABASE_URL=postgres://postgres:password@db:5432/tion_db
+      - REDIS_URL=redis://redis:6379/0
+      - API_KEY=your-secret-api-key
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./logs:/app/logs
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=tion_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

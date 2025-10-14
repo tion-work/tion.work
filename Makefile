@@ -1,7 +1,7 @@
 # dev.tion.work Makefile
 # 多前端 + 单后端架构
 
-.PHONY: help install dev build start test lint clean check lint-fix docker-up docker-down docker-logs deploy-api deploy-dev deploy-all check-deploy
+.PHONY: help install dev start build test lint clean check lint-fix docker-up docker-down docker-logs deploy-api deploy-dev deploy-all check-deploy
 
 # 默认目标
 help:
@@ -9,26 +9,20 @@ help:
 	@echo ""
 	@echo "🚀 开发命令:"
 	@echo "  install     - 安装所有依赖"
-	@echo "  start       - 启动开发环境 (主站 + 后端)"
-	@echo "  start-all   - 启动所有前端 + 后端"
+	@echo "  start       - 启动所有前端 + 后端"
 	@echo "  index       - 仅启动主站 (端口 3001)"
 	@echo "  dev         - 仅启动开发工具站 (端口 3002)"
 	@echo "  admin       - 仅启动管理后台 (端口 3003)"
 	@echo "  docs        - 仅启动文档站点 (端口 3004)"
 	@echo "  mobile      - 仅启动移动端 (端口 3005)"
-	@echo "  backend     - 仅启动后端开发服务器"
+	@echo "  crypto      - 仅启动加密货币导航站 (端口 3006)"
+	@echo "  backend     - 仅启动后端开发服务器 (端口 8080)"
 	@echo "  docker      - 使用 Docker 启动后端"
 	@echo "  stop        - 停止所有服务"
 	@echo "  restart     - 重启开发环境 (停止 + 启动)"
 	@echo ""
 	@echo "🔨 构建命令:"
 	@echo "  build       - 构建所有项目"
-	@echo "  build-index - 构建主站"
-	@echo "  build-dev   - 构建开发工具站"
-	@echo "  build-admin - 构建管理后台"
-	@echo "  build-docs  - 构建文档站点"
-	@echo "  build-mobile  - 构建移动端"
-	@echo "  build-backend - 构建后端"
 	@echo ""
 	@echo "🧪 测试和检查:"
 	@echo "  test        - 运行所有测试"
@@ -42,6 +36,7 @@ help:
 	@echo "🚀 生产部署命令:"
 	@echo "  deploy-api  - 部署后端API到Railway"
 	@echo "  deploy-dev  - 部署开发工具站到Netlify"
+	@echo "  deploy-crypto - 部署加密货币导航站到Netlify"
 	@echo "  deploy-all  - 部署所有项目到生产环境"
 	@echo "  check-deploy - 检查生产环境部署状态"
 	@echo ""
@@ -49,29 +44,27 @@ help:
 # 安装依赖
 install:
 	@echo "📦 安装主站依赖..."
-	@cd frontends/index && npm install
+	@cd frontends/index && npm install --legacy-peer-deps
 	@echo "📦 安装开发工具站依赖..."
-	@cd frontends/dev && npm install
+	@cd frontends/dev && npm install --legacy-peer-deps
 	@echo "📦 安装管理后台依赖..."
-	@cd frontends/admin && npm install
+	@cd frontends/admin && npm install --legacy-peer-deps
 	@echo "📦 安装文档站点依赖..."
-	@cd frontends/docs && npm install
+	@cd frontends/docs && npm install --legacy-peer-deps
 	@echo "📦 安装移动端依赖..."
-	@cd frontends/mobile && npm install
+	@cd frontends/mobile && npm install --legacy-peer-deps
+	@echo "📦 安装加密货币导航站依赖..."
+	@cd frontends/crypto-nav && npm install --legacy-peer-deps
 	@echo "📦 安装后端依赖..."
-	@cd backend && npm install
+	@cd backend && go mod tidy || echo "⚠️  Go 未安装，跳过后端依赖安装"
 	@echo "✅ 所有依赖安装完成"
 
 # 开发环境
+
 start:
-	@echo "🚀 启动开发环境 (主站 + 后端)..."
-	@echo "启动主站服务器..."
-	@cd frontends/index && npm run dev &
+	@echo "🚀 启动所有服务..."
 	@echo "启动后端开发服务器 (Docker)..."
 	@cd backend && docker compose up -d
-
-start-all:
-	@echo "🚀 启动所有服务..."
 	@echo "启动主站服务器 (端口 3001)..."
 	@cd frontends/index && npm run dev &
 	@echo "启动开发工具站服务器 (端口 3002)..."
@@ -82,8 +75,9 @@ start-all:
 	@cd frontends/docs && npm run dev &
 	@echo "启动移动端开发服务器 (端口 3005)..."
 	@cd frontends/mobile && npm run dev &
-	@echo "启动后端开发服务器 (Docker)..."
-	@cd backend && docker compose up -d
+	@echo "启动加密货币导航站开发服务器 (端口 3006)..."
+	@cd frontends/crypto-nav && npm run dev &
+
 
 # 单独启动各个前端
 index:
@@ -106,14 +100,18 @@ mobile:
 	@echo "🚀 启动移动端 (端口 3005)..."
 	@cd frontends/mobile && npm run dev
 
+crypto:
+	@echo "🚀 启动加密货币导航站 (端口 3006)..."
+	@cd frontends/crypto-nav && npm run dev
+
 backend:
-	@echo "🚀 启动后端开发服务器..."
-	@cd backend && npm run dev
+	@echo "🚀 启动后端开发服务器 (端口 8080)..."
+	@cd backend && go run cmd/server/main.go
 
 # Docker 后端
 docker:
 	@echo "🐳 使用 Docker 启动后端..."
-	@cd backend && docker compose up -d
+	@cd backend && docker-compose up -d
 
 stop:
 	@echo "🛑 停止所有服务..."
@@ -134,12 +132,16 @@ restart:
 # 构建
 build:
 	@echo "🔨 构建所有项目..."
-	@$(MAKE) build-index
-
-build-index:
-	@echo "🔨 构建主站..."
+	@echo "构建后端项目..."
+	@cd backend && go build -o bin/tion-backend cmd/server/main.go || echo "⚠️  Go 未安装，跳过后端构建"
+	@echo "构建前端项目..."
 	@cd frontends/index && npm run build
-
+	@cd frontends/dev && npm run build
+	@cd frontends/admin && npm run build
+	@cd frontends/docs && npm run build
+	@cd frontends/mobile && npm run build
+	@cd frontends/crypto-nav && npm install --legacy-peer-deps && npm run build
+	@echo "✅ 所有项目构建完成"
 
 # 测试
 test:
@@ -149,7 +151,7 @@ test:
 	@cd frontends/admin && npm test || true
 	@cd frontends/docs && npm test || true
 	@cd frontends/mobile && npm test || true
-	@cd backend && npm test || true
+	@cd backend && go test ./... || true
 
 # 代码质量检查
 check:
@@ -159,7 +161,8 @@ check:
 		cd frontends/$$project && npm run type-check && npm run lint; \
 		cd ../..; \
 	done
-	@cd backend && npm run type-check && npm run lint
+	@echo "检查后端..."
+	@cd backend && go vet ./... && go fmt ./...
 	@./scripts/check-syntax.sh
 
 
@@ -171,7 +174,8 @@ lint:
 	@cd frontends/admin && npm run lint || true
 	@cd frontends/docs && npm run lint || true
 	@cd frontends/mobile && npm run lint || true
-	@cd backend && npm run lint || true
+	@echo "检查后端..."
+	@cd backend && go vet ./... || true
 
 # 自动修复代码问题
 lint-fix:
@@ -181,7 +185,8 @@ lint-fix:
 	@cd frontends/admin && npm run lint -- --fix || true
 	@cd frontends/docs && npm run lint -- --fix || true
 	@cd frontends/mobile && npm run lint -- --fix || true
-	@cd backend && npm run lint -- --fix || true
+	@echo "修复后端代码格式..."
+	@cd backend && go fmt ./... || true
 
 # 清理
 clean:
@@ -191,7 +196,7 @@ clean:
 	@cd frontends/admin && rm -rf .next node_modules
 	@cd frontends/docs && rm -rf .next node_modules
 	@cd frontends/mobile && rm -rf .next node_modules
-	@cd backend && rm -rf dist node_modules
+	@cd backend && rm -rf bin
 	@docker stop tion-backend || true
 	@docker rmi tion-backend || true
 	@echo "✅ 清理完成"
@@ -201,7 +206,7 @@ clean:
 deploy-api:
 	@echo "🚀 部署后端API到Railway..."
 	@echo "📦 构建后端..."
-	@cd backend && npm run build
+	@cd backend && go build -o bin/tion-backend cmd/server/main.go
 	@echo "🚀 部署到Railway..."
 	@cd backend && railway up --detach
 	@echo "✅ 后端API部署完成: https://api.tion.work"
@@ -213,6 +218,14 @@ deploy-dev:
 	@echo "🚀 部署到Netlify..."
 	@cd frontends/dev && netlify deploy --prod --dir=.next
 	@echo "✅ 开发工具站部署完成: https://dev.tion.work"
+
+deploy-crypto:
+	@echo "🚀 部署加密货币导航站到Netlify..."
+	@echo "📦 构建前端..."
+	@cd frontends/crypto-nav && npm run build
+	@echo "🚀 部署到Netlify..."
+	@cd frontends/crypto-nav && netlify deploy --prod --dir=.next
+	@echo "✅ 加密货币导航站部署完成: https://crypto.tion.work"
 
 deploy-all:
 	@echo "🚀 部署所有项目到生产环境..."
@@ -235,6 +248,7 @@ deploy-all:
 	@echo "  🛠️  工具站: https://dev.tion.work"
 	@echo "  🔌 API: https://api.tion.work"
 	@echo "  📚 API文档: https://api.tion.work/docs"
+	@echo "  💰 加密货币导航: https://crypto.tion.work"
 
 # 其他部署命令（保留兼容性）
 deploy-index:

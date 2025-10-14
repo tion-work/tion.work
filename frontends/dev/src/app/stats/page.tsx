@@ -1,10 +1,17 @@
 "use client";
 
+import { StatsManager } from "@/components/ui/StatsManager";
 import { UsageStats } from "@/components/ui/UsageStats";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useState } from "react";
 
 export default function StatsPage() {
   const { content } = useLanguage();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleStatsUpdate = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -18,7 +25,10 @@ export default function StatsPage() {
           </p>
         </div>
 
-        <UsageStats />
+        <div className="space-y-6">
+          <UsageStats key={refreshKey} />
+          <StatsManager onStatsUpdate={handleStatsUpdate} />
+        </div>
       </div>
     </div>
   );
