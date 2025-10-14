@@ -20,10 +20,6 @@ export const zhContent = {
     output: "输出内容",
     options: "选项",
     settings: "设置",
-    about: "关于",
-    stats: "统计",
-    privacy: "隐私政策",
-    terms: "服务条款",
     contact: "联系我们",
     feedback: "反馈",
     help: "帮助",
@@ -37,6 +33,13 @@ export const zhContent = {
     toolNotFoundDesc: "请检查工具 ID 是否正确",
     inputPlaceholder: "请输入内容...",
     resultPlaceholder: "处理结果将显示在这里...",
+    copied: "已复制",
+    image: "图片",
+    characters: "字符",
+    clickToReselectFile: "点击重新选择文件",
+    clickToUploadFile: "点击上传文件",
+    fileSelected: "已选择文件",
+    contentLength: "内容长度",
   },
 
   // 导航
@@ -46,8 +49,6 @@ export const zhContent = {
     categories: "分类",
     popular: "热门",
     recent: "最近",
-    stats: "统计",
-    about: "关于",
   },
 
   // 工具分类
@@ -85,14 +86,6 @@ export const zhContent = {
     stats: {
       title: "使用统计",
       description: "查看工具使用情况和统计数据",
-    },
-    privacy: {
-      title: "隐私政策",
-      description: "了解我们如何保护您的隐私",
-    },
-    terms: {
-      title: "服务条款",
-      description: "使用条款和条件",
     },
   },
 
@@ -152,9 +145,7 @@ export const zhContent = {
 
   // Footer
   footer: {
-    description: "为开发者提供一站式工具解决方案，提升开发效率。",
-    quickLinks: "快速链接",
-    contactUs: "联系我们",
+    description: "现代化开发者工具集合平台，为开发者提供一站式解决方案",
     copyright: "© 2025 TiON.Work. All rights reserved.",
   },
 };

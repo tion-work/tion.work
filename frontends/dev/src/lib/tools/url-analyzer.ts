@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class URLAnalyzerTool extends BaseTool {
@@ -8,7 +8,9 @@ export class URLAnalyzerTool extends BaseTool {
   category: ToolCategory = "utility";
   icon = "link";
   color = "bg-indigo-500";
-  inputLanguage = "text";
+  inputType: InputType = "text";
+  outputType: OutputType = "json";
+  inputLanguage = undefined;
   inputPlaceholder = "Enter URL to analyze...";
   outputLanguage = "json";
   initialInput = "https://www.example.com/path?param=value#section";
@@ -41,7 +43,7 @@ export class URLAnalyzerTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "URL Analyzer",
@@ -75,6 +77,15 @@ export class URLAnalyzerTool extends BaseTool {
             description: "Include security analysis",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "URLアナライザー",
+        description: "URLを分析し、コンポーネントを抽出",
+        inputPlaceholder: "分析するURLを入力してください...",
+        options: this.options,
       };
     }
 

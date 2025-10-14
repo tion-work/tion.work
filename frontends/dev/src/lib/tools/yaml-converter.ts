@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class YAMLConverterTool extends BaseTool {
@@ -8,6 +8,8 @@ export class YAMLConverterTool extends BaseTool {
   category: ToolCategory = "data";
   icon = "file-code";
   color = "bg-yellow-500";
+  inputType: InputType = "textarea";
+  outputType: OutputType = "text";
   inputLanguage = "yaml";
   inputPlaceholder = "Enter YAML or JSON content...";
   outputLanguage = "yaml";
@@ -33,7 +35,7 @@ export class YAMLConverterTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "YAML Converter",
@@ -59,6 +61,15 @@ export class YAMLConverterTool extends BaseTool {
             description: "Number of spaces for indentation",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "YAMLコンバーター",
+        description: "YAMLとJSON形式の相互変換",
+        inputPlaceholder: "YAMLまたはJSONコンテンツを入力してください...",
+        options: this.options,
       };
     }
 

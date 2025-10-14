@@ -18,7 +18,7 @@ export type ToolCategory =
   | "design"
   | "text";
 
-export type Language = "zh" | "en";
+export type Language = "zh" | "en" | "ja";
 
 export interface ToolProcessRequest {
   toolId: string;
@@ -42,6 +42,9 @@ export interface ToolOption {
   description?: string;
 }
 
+export type InputType = "text" | "textarea" | "code" | "file" | "none";
+export type OutputType = "text" | "code" | "image" | "file" | "html" | "json";
+
 export interface ToolConfig {
   id: string;
   name: string;
@@ -49,6 +52,8 @@ export interface ToolConfig {
   category: ToolCategory;
   icon: string;
   options: ToolOption[];
+  inputType: InputType;
+  outputType: OutputType;
   processor: (input: string, options?: Record<string, any>) => Promise<string>;
   validator: (input: string) => boolean;
 }

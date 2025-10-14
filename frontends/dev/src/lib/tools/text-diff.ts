@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class TextDiffTool extends BaseTool {
@@ -8,9 +8,11 @@ export class TextDiffTool extends BaseTool {
   category: ToolCategory = "text";
   icon = "git-compare";
   color = "bg-purple-500";
-  inputLanguage = "text";
+  inputType: InputType = "textarea";
+  outputType: OutputType = "html";
+  inputLanguage = undefined;
   inputPlaceholder = "Enter first text...";
-  outputLanguage = "text";
+  outputLanguage = "html";
   initialInput = "Original text\nLine 2\nLine 3";
   options = [
     {
@@ -36,7 +38,7 @@ export class TextDiffTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "Text Diff",
@@ -65,6 +67,15 @@ export class TextDiffTool extends BaseTool {
             description: "Number of context lines to show",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "テキスト差分",
+        description: "2つのテキスト文書を比較し、差分を表示",
+        inputPlaceholder: "最初のテキストを入力してください...",
+        options: this.options,
       };
     }
 

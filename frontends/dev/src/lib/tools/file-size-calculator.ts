@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class FileSizeCalculatorTool extends BaseTool {
@@ -8,9 +8,11 @@ export class FileSizeCalculatorTool extends BaseTool {
   category: ToolCategory = "utility";
   icon = "file";
   color = "bg-cyan-500";
-  inputLanguage = "text";
+  inputType: InputType = "text";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
   inputPlaceholder = "Enter file size (e.g., 1024, 1KB, 2MB)...";
-  outputLanguage = "text";
+  outputLanguage = undefined;
   initialInput = "1024";
   options = [
     {
@@ -51,7 +53,7 @@ export class FileSizeCalculatorTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "File Size Calculator",
@@ -93,6 +95,53 @@ export class FileSizeCalculatorTool extends BaseTool {
             type: "number",
             defaultValue: 2,
             description: "Decimal places",
+          },
+        ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "ファイルサイズ計算機",
+        description: "ファイルサイズを計算し、単位間で変換",
+        inputPlaceholder:
+          "ファイルサイズを入力してください（例：1024、1KB、2MB）...",
+        options: [
+          {
+            name: "fromUnit",
+            label: "変換元単位",
+            type: "select",
+            defaultValue: "bytes",
+            description: "変換元の単位",
+            options: [
+              { label: "バイト", value: "bytes" },
+              { label: "KB", value: "kb" },
+              { label: "MB", value: "mb" },
+              { label: "GB", value: "gb" },
+              { label: "TB", value: "tb" },
+            ],
+          },
+          {
+            name: "toUnit",
+            label: "変換先単位",
+            type: "select",
+            defaultValue: "all",
+            description: "変換先の単位",
+            options: [
+              { label: "すべての単位", value: "all" },
+              { label: "バイト", value: "bytes" },
+              { label: "KB", value: "kb" },
+              { label: "MB", value: "mb" },
+              { label: "GB", value: "gb" },
+              { label: "TB", value: "tb" },
+            ],
+          },
+          {
+            name: "precision",
+            label: "精度",
+            type: "number",
+            defaultValue: 2,
+            description: "小数点以下の桁数",
           },
         ],
       };

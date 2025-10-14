@@ -2,15 +2,15 @@
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { CodeEditor } from "@/components/ui/CodeEditor";
 import Loading from "@/components/ui/Loading";
+import { ToolInput } from "@/components/ui/ToolInput";
+import { ToolOutput } from "@/components/ui/ToolOutput";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { statsManager } from "@/lib/stats";
 import { ToolRegistry } from "@/lib/tools";
 import { BaseTool } from "@/lib/tools/base";
 import { copyToClipboard, downloadFile } from "@/lib/utils";
 import { useAddToHistory } from "@/stores/useAppStore";
-import { Copy, Download, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -55,7 +55,7 @@ export default function ToolPage() {
     const startTime = Date.now();
 
     try {
-      const result = await tool.process(input, options);
+      const result = await tool.process(String(input), options);
       const processingTime = (Date.now() - startTime) / 1000; // 转换为秒
 
       setOutput(result);
@@ -63,14 +63,13 @@ export default function ToolPage() {
       // 添加到历史记录
       addToHistory({
         toolId: tool.id,
-        toolName: tool.name,
-        input,
+        toolName: tool.getLocalizedContent(language || "zh").name,
+        input: String(input),
         output: result,
         timestamp: new Date().toISOString(),
       });
 
-      // 记录成功的使用统计
-      statsManager.recordToolUsage(tool.id, true, processingTime);
+      // 统计功能已移除
 
       // 处理完成后自动滚动到输出区域
       setTimeout(() => {
@@ -85,8 +84,7 @@ export default function ToolPage() {
     } catch (err) {
       const processingTime = (Date.now() - startTime) / 1000;
 
-      // 记录失败的使用统计
-      statsManager.recordToolUsage(tool.id, false, processingTime);
+      // 统计功能已移除
       setError(err instanceof Error ? err.message : "处理失败");
     } finally {
       setLoading(false);
@@ -98,8 +96,51 @@ export default function ToolPage() {
   };
 
   const handleDownload = () => {
-    if (tool) {
-      downloadFile(output, `${tool.name}-output.txt`);
+    if (output && tool) {
+      // 根据输出类型确定文件扩展名和MIME类型
+      let filename: string;
+      let mimeType: string;
+      let content: string;
+
+      const localizedToolName = tool.getLocalizedContent(language || "zh").name;
+      switch (tool.outputType) {
+        case "image":
+          filename = `${localizedToolName}-output.png`;
+          mimeType = "image/png";
+          // 对于图片，如果是 Data URL，直接使用 Data URL 创建下载链接
+          if (output.startsWith("data:")) {
+            const link = document.createElement("a");
+            link.href = output;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return;
+          }
+          content = output;
+          break;
+        case "json":
+          filename = `${localizedToolName}-output.json`;
+          mimeType = "application/json";
+          content = output;
+          break;
+        case "html":
+          filename = `${localizedToolName}-output.html`;
+          mimeType = "text/html";
+          content = output;
+          break;
+        case "code":
+          filename = `${localizedToolName}-output.txt`;
+          mimeType = "text/plain";
+          content = output;
+          break;
+        default:
+          filename = `${localizedToolName}-output.txt`;
+          mimeType = "text/plain";
+          content = output;
+      }
+
+      downloadFile(content, filename, mimeType);
     }
   };
 
@@ -147,7 +188,7 @@ export default function ToolPage() {
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
               <span className="text-lg font-semibold text-blue-600">
-                {tool.name.charAt(0)}
+                {tool.getLocalizedContent(language || "zh").name.charAt(0)}
               </span>
             </div>
             <div>
@@ -166,32 +207,34 @@ export default function ToolPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* 1. 输入内容区域 */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {content.common.input}
-              </h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-                disabled={loading}
-              >
-                <RotateCcw className="h-4 w-4 mr-1" />
-                {content.common.reset}
-              </Button>
+          {tool.inputType !== "none" && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {content.common.input}
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReset}
+                  disabled={loading}
+                >
+                  <RotateCcw className="h-4 w-4 mr-1" />
+                  {content.common.reset}
+                </Button>
+              </div>
+              <ToolInput
+                type={tool.inputType}
+                value={input}
+                onChange={setInput}
+                placeholder={
+                  tool.getLocalizedContent(language || "zh").inputPlaceholder ??
+                  (content.common.inputPlaceholder || "请输入内容...")
+                }
+                language={tool.inputLanguage}
+              />
             </div>
-            <CodeEditor
-              language={tool.inputLanguage ?? "text"}
-              value={input}
-              onChange={setInput}
-              placeholder={
-                tool.getLocalizedContent(language || "zh").inputPlaceholder ??
-                (content.common.inputPlaceholder || "请输入内容...")
-              }
-              height="300px"
-            />
-          </div>
+          )}
 
           {/* 2. 选项区域（如果需要的话） */}
           {tool.options && tool.options.length > 0 && (
@@ -232,16 +275,44 @@ export default function ToolPage() {
                             type="checkbox"
                             id={`option-${option.name}`}
                             checked={
-                              options[option.name] ||
-                              option.defaultValue ||
-                              false
+                              options[option.name] !== undefined
+                                ? options[option.name]
+                                : option.defaultValue
                             }
-                            onChange={(e) =>
-                              setOptions({
+                            onChange={(e) => {
+                              const newValue = e.target.checked;
+                              const newOptions = {
                                 ...options,
-                                [option.name]: e.target.checked,
-                              })
-                            }
+                                [option.name]: newValue,
+                              };
+
+                              // 对于密码生成器，确保至少选择一种字符类型
+                              if (tool.id === "password-generator") {
+                                const charTypeOptions = [
+                                  "includeUppercase",
+                                  "includeLowercase",
+                                  "includeNumbers",
+                                  "includeSymbols",
+                                ];
+
+                                if (
+                                  charTypeOptions.includes(option.name) &&
+                                  !newValue
+                                ) {
+                                  // 检查是否还有其他字符类型被选中
+                                  const hasOtherCharTypes = charTypeOptions
+                                    .filter((name) => name !== option.name)
+                                    .some((name) => newOptions[name] === true);
+
+                                  if (!hasOtherCharTypes) {
+                                    // 如果没有其他字符类型被选中，阻止取消选择
+                                    return;
+                                  }
+                                }
+                              }
+
+                              setOptions(newOptions);
+                            }}
                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                           />
                           <label
@@ -283,7 +354,9 @@ export default function ToolPage() {
           <div className="flex justify-center mb-8">
             <Button
               onClick={handleProcess}
-              disabled={!input.trim() || loading}
+              disabled={
+                (tool.inputType !== "none" && !String(input).trim()) || loading
+              }
               size="lg"
               className="px-12 py-3 text-lg font-semibold"
             >
@@ -297,26 +370,6 @@ export default function ToolPage() {
               <h2 className="text-lg font-semibold text-gray-900">
                 {content.common.result}
               </h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopy}
-                  disabled={!output || loading}
-                >
-                  <Copy className="h-4 w-4 mr-1" />
-                  {content.common.copy}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownload}
-                  disabled={!output || loading}
-                >
-                  <Download className="h-4 w-4 mr-1" />
-                  {content.common.download}
-                </Button>
-              </div>
             </div>
 
             {loading ? (
@@ -324,15 +377,12 @@ export default function ToolPage() {
                 <Loading />
               </div>
             ) : (
-              <CodeEditor
-                language={tool.outputLanguage ?? "text"}
+              <ToolOutput
+                type={tool.outputType}
                 value={output}
-                onChange={() => {}}
-                readOnly
-                placeholder={
-                  content.common.resultPlaceholder || "处理结果将显示在这里..."
-                }
-                height="300px"
+                language={tool.outputLanguage}
+                onCopy={handleCopy}
+                onDownload={handleDownload}
               />
             )}
           </div>

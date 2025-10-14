@@ -20,10 +20,6 @@ export const enContent = {
     output: "Output",
     options: "Options",
     settings: "Settings",
-    about: "About",
-    stats: "Stats",
-    privacy: "Privacy Policy",
-    terms: "Terms of Service",
     contact: "Contact Us",
     feedback: "Feedback",
     help: "Help",
@@ -37,6 +33,13 @@ export const enContent = {
     toolNotFoundDesc: "Please check if the tool ID is correct",
     inputPlaceholder: "Please enter content...",
     resultPlaceholder: "Results will be displayed here...",
+    copied: "Copied",
+    image: "Image",
+    characters: "characters",
+    clickToReselectFile: "Click to reselect file",
+    clickToUploadFile: "Click to upload file",
+    fileSelected: "File selected",
+    contentLength: "Content length",
   },
 
   // Navigation
@@ -46,8 +49,6 @@ export const enContent = {
     categories: "Categories",
     popular: "Popular",
     recent: "Recent",
-    stats: "Stats",
-    about: "About",
   },
 
   // Tool categories
@@ -156,9 +157,7 @@ export const enContent = {
   // Footer
   footer: {
     description:
-      "One-stop tool solution for developers to improve development efficiency.",
-    quickLinks: "Quick Links",
-    contactUs: "Contact Us",
+      "Modern developer tools platform providing one-stop solutions for developers",
     copyright: "© 2025 TiON.Work. All rights reserved.",
   },
 };

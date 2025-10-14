@@ -1,8 +1,12 @@
 import { ToolRegistry } from "./base";
 import { Base64EncoderTool } from "./base64-encoder";
 import { ColorPickerTool } from "./color-picker";
+import { CSSMinifierTool } from "./css-minifier";
 import { CSVConverterTool } from "./csv-converter";
 import { FileSizeCalculatorTool } from "./file-size-calculator";
+import { HashGeneratorTool } from "./hash-generator";
+import { HTMLMinifierTool } from "./html-minifier";
+import { JavaScriptFormatterTool } from "./javascript-formatter";
 import { JsonFormatterTool } from "./json-formatter";
 import { JSONValidatorTool } from "./json-validator";
 import { JWTDecoderTool } from "./jwt-decoder";
@@ -19,6 +23,7 @@ import { TextDiffTool } from "./text-diff";
 import { TimeCalculatorTool } from "./time-calculator";
 import { TimestampConverterTool } from "./timestamp-converter";
 import { URLAnalyzerTool } from "./url-analyzer";
+import { UrlEncoderTool } from "./url-encoder";
 import { URLShortenerTool } from "./url-shortener";
 import { UUIDGeneratorTool } from "./uuid-generator";
 import { XMLFormatterTool } from "./xml-formatter";
@@ -42,6 +47,10 @@ export function registerTools() {
   ToolRegistry.register(new JSONValidatorTool());
   ToolRegistry.register(new XMLValidatorTool());
   ToolRegistry.register(new SQLOptimizerTool());
+  ToolRegistry.register(new CSSMinifierTool());
+  ToolRegistry.register(new HTMLMinifierTool());
+  ToolRegistry.register(new JavaScriptFormatterTool());
+  ToolRegistry.register(new HashGeneratorTool());
 
   // 数据处理工具
   ToolRegistry.register(new YAMLConverterTool());
@@ -61,6 +70,7 @@ export function registerTools() {
   ToolRegistry.register(new FileSizeCalculatorTool());
   ToolRegistry.register(new TimeCalculatorTool());
   ToolRegistry.register(new URLAnalyzerTool());
+  ToolRegistry.register(new UrlEncoderTool());
 }
 
 // 导出工具注册函数

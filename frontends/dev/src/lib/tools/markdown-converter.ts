@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class MarkdownConverterTool extends BaseTool {
@@ -8,6 +8,8 @@ export class MarkdownConverterTool extends BaseTool {
   category: ToolCategory = "text";
   icon = "file-text";
   color = "bg-green-500";
+  inputType: InputType = "textarea";
+  outputType: OutputType = "html";
   inputLanguage = "markdown";
   inputPlaceholder = "Enter Markdown content...";
   outputLanguage = "html";
@@ -34,7 +36,7 @@ export class MarkdownConverterTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "Markdown Converter",
@@ -59,6 +61,35 @@ export class MarkdownConverterTool extends BaseTool {
             type: "boolean",
             defaultValue: false,
             description: "Include CSS styles in HTML output",
+          },
+        ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "Markdownコンバーター",
+        description: "MarkdownをHTMLやその他の形式に変換",
+        inputPlaceholder: "Markdownコンテンツを入力してください...",
+        options: [
+          {
+            name: "format",
+            label: "出力形式",
+            type: "select",
+            defaultValue: "html",
+            description: "出力形式を選択",
+            options: [
+              { label: "HTML", value: "html" },
+              { label: "プレーンテキスト", value: "text" },
+              { label: "JSON", value: "json" },
+            ],
+          },
+          {
+            name: "includeStyles",
+            label: "スタイルを含める",
+            type: "boolean",
+            defaultValue: false,
+            description: "HTML出力にCSSスタイルを含める",
           },
         ],
       };

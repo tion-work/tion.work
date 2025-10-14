@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class RandomDataGeneratorTool extends BaseTool {
@@ -8,7 +8,9 @@ export class RandomDataGeneratorTool extends BaseTool {
   category: ToolCategory = "utility";
   icon = "shuffle";
   color = "bg-pink-500";
-  inputLanguage = "text";
+  inputType: InputType = "text";
+  outputType: OutputType = "json";
+  inputLanguage = undefined;
   inputPlaceholder = "Enter number of records to generate...";
   outputLanguage = "json";
   initialInput = "5";
@@ -48,7 +50,7 @@ export class RandomDataGeneratorTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "Random Data Generator",
@@ -89,6 +91,15 @@ export class RandomDataGeneratorTool extends BaseTool {
             description: "Include unique ID field",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "ランダムデータジェネレーター",
+        description: "様々な形式でランダムなテストデータを生成",
+        inputPlaceholder: "生成するレコード数を入力してください...",
+        options: this.options,
       };
     }
 

@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class SQLOptimizerTool extends BaseTool {
@@ -8,9 +8,11 @@ export class SQLOptimizerTool extends BaseTool {
   category: ToolCategory = "code";
   icon = "database";
   color = "bg-purple-500";
+  inputType: InputType = "code";
+  outputType: OutputType = "text";
   inputLanguage = "sql";
   inputPlaceholder = "Enter SQL query to optimize...";
-  outputLanguage = "sql";
+  outputLanguage = "text";
   initialInput = "SELECT * FROM users WHERE age > 25 ORDER BY name";
   options = [
     {
@@ -36,7 +38,7 @@ export class SQLOptimizerTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "SQL Optimizer",
@@ -65,6 +67,15 @@ export class SQLOptimizerTool extends BaseTool {
             description: "Add optimization comments",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "SQLオプティマイザー",
+        description: "SQLクエリを分析・最適化",
+        inputPlaceholder: "最適化するSQLクエリを入力してください...",
+        options: this.options,
       };
     }
 

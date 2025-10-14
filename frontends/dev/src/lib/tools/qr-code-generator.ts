@@ -1,4 +1,5 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
+import * as QRCode from "qrcode";
 import { BaseTool } from "./base";
 
 export class QrCodeGeneratorTool extends BaseTool {
@@ -8,9 +9,11 @@ export class QrCodeGeneratorTool extends BaseTool {
   category: ToolCategory = "utility";
   icon = "qrcode";
   color = "bg-indigo-500";
-  inputLanguage = "text";
+  inputType: InputType = "textarea";
+  outputType: OutputType = "image";
+  inputLanguage = undefined;
   inputPlaceholder = "请输入要生成二维码的内容...";
-  outputLanguage = "text";
+  outputLanguage = undefined;
   initialInput = "";
   options = [
     {
@@ -35,7 +38,7 @@ export class QrCodeGeneratorTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "QR Code Generator",
@@ -55,6 +58,42 @@ export class QrCodeGeneratorTool extends BaseTool {
             type: "select",
             defaultValue: "M",
             description: "QR code error correction level",
+            options: [
+              { label: "L (7%)", value: "L" },
+              { label: "M (15%)", value: "M" },
+              { label: "Q (25%)", value: "Q" },
+              { label: "H (30%)", value: "H" },
+            ],
+          },
+        ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "QRコードジェネレーター",
+        description: "QRコード画像を生成",
+        inputPlaceholder: "QRコードを生成する内容を入力してください...",
+        options: [
+          {
+            name: "size",
+            label: "サイズ",
+            type: "number",
+            defaultValue: 200,
+            description: "QRコード画像サイズ（ピクセル）",
+          },
+          {
+            name: "errorCorrectionLevel",
+            label: "エラー訂正レベル",
+            type: "select",
+            defaultValue: "M",
+            description: "QRコードエラー訂正レベル",
+            options: [
+              { label: "L (7%)", value: "L" },
+              { label: "M (15%)", value: "M" },
+              { label: "Q (25%)", value: "Q" },
+              { label: "H (30%)", value: "H" },
+            ],
           },
         ],
       };
@@ -78,6 +117,12 @@ export class QrCodeGeneratorTool extends BaseTool {
           type: "select",
           defaultValue: "M",
           description: "二维码纠错级别",
+          options: [
+            { label: "L (7%)", value: "L" },
+            { label: "M (15%)", value: "M" },
+            { label: "Q (25%)", value: "Q" },
+            { label: "H (30%)", value: "H" },
+          ],
         },
       ],
     };
@@ -94,26 +139,18 @@ export class QrCodeGeneratorTool extends BaseTool {
     }
 
     try {
-      // 这里应该使用实际的二维码生成库
-      // 为了演示，我们返回一个模拟的二维码数据URL
-      const qrData = {
-        content: input.trim(),
-        size: size,
-        errorCorrectionLevel: errorCorrectionLevel,
-        timestamp: new Date().toISOString(),
-      };
+      // 使用 qrcode 库生成真正的二维码
+      const qrCodeDataURL = await QRCode.toDataURL(input.trim(), {
+        width: size,
+        margin: 2,
+        color: {
+          dark: "#000000",
+          light: "#FFFFFF",
+        },
+        errorCorrectionLevel: errorCorrectionLevel as any,
+      });
 
-      // 模拟生成二维码
-      return `data:image/svg+xml;base64,${btoa(`
-        <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-          <rect width="${size}" height="${size}" fill="white"/>
-          <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="monospace" font-size="12">
-            QR Code: ${input.trim().substring(0, 20)}${
-        input.trim().length > 20 ? "..." : ""
-      }
-          </text>
-        </svg>
-      `)}`;
+      return qrCodeDataURL;
     } catch (error) {
       throw new Error(
         `二维码生成失败: ${error instanceof Error ? error.message : "未知错误"}`

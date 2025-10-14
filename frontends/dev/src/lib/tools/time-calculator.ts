@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class TimeCalculatorTool extends BaseTool {
@@ -8,9 +8,11 @@ export class TimeCalculatorTool extends BaseTool {
   category: ToolCategory = "utility";
   icon = "clock";
   color = "bg-teal-500";
-  inputLanguage = "text";
+  inputType: InputType = "text";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
   inputPlaceholder = "Enter time values (e.g., 2h 30m, 90 minutes)...";
-  outputLanguage = "text";
+  outputLanguage = undefined;
   initialInput = "2h 30m";
   options = [
     {
@@ -49,7 +51,7 @@ export class TimeCalculatorTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "Time Calculator",
@@ -92,6 +94,16 @@ export class TimeCalculatorTool extends BaseTool {
             description: "Decimal places",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "時間計算機",
+        description: "時間差を計算し、時間単位間で変換",
+        inputPlaceholder:
+          "時間を入力してください（例：2h30m、90分、1.5時間）...",
+        options: this.options,
       };
     }
 

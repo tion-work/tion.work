@@ -1,29 +1,40 @@
-import { BaseTool } from './base';
-import { ToolCategory } from '../../types';
+import { InputType, OutputType, ToolCategory } from "../../types";
+import { BaseTool } from "./base";
 
 export class RegexTesterTool extends BaseTool {
-  id = 'regex-tester';
-  name = '正则表达式测试器';
-  description = '测试和调试正则表达式，支持多种标志';
-  category: ToolCategory = 'data';
-  icon = 'search';
+  id = "regex-tester";
+  name = "正则表达式测试器";
+  description = "测试和调试正则表达式，支持多种标志";
+  category: ToolCategory = "data";
+  icon = "search";
   color = "bg-blue-500";
-  inputLanguage = "json";
-  inputPlaceholder = "请输入 JSON 数据...";
-  outputLanguage = "json";
-  initialInput = "";
+  inputType: InputType = "textarea";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
+  inputPlaceholder = "请输入要测试的文本...";
+  outputLanguage = undefined;
+  initialInput = "Hello World 123";
   options = [];
 
-  getLocalizedContent(language: 'zh' | 'en') {
-    if (language === 'en') {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
+    if (language === "en") {
       return {
-        name: this.name,
-        description: this.description,
-        inputPlaceholder: this.inputPlaceholder || "Please enter content...",
+        name: "Regex Tester",
+        description: "Test and debug regular expressions with various flags",
+        inputPlaceholder: "Please enter text to test...",
         options: [],
       };
     }
-    
+
+    if (language === "ja") {
+      return {
+        name: "正規表現テスター",
+        description: "様々なフラグで正規表現をテスト・デバッグ",
+        inputPlaceholder: "テストするテキストを入力してください...",
+        options: [],
+      };
+    }
+
     return {
       name: this.name,
       description: this.description,
@@ -34,16 +45,20 @@ export class RegexTesterTool extends BaseTool {
 
   async process(input: string, options: any = {}): Promise<string> {
     const {
-      pattern = '',
-      flags = 'g',
-      testText = '',
-      replaceText = ''
+      pattern = "",
+      flags = "g",
+      testText = "",
+      replaceText = "",
     } = options;
 
     try {
       return this.testRegex(input, { pattern, flags, testText, replaceText });
     } catch (error) {
-      throw new Error(`正则表达式测试失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(
+        `正则表达式测试失败: ${
+          error instanceof Error ? error.message : "未知错误"
+        }`
+      );
     }
   }
 
@@ -58,11 +73,11 @@ export class RegexTesterTool extends BaseTool {
 
   private testRegex(input: string, options: any): string {
     const { pattern, flags, testText, replaceText } = options;
-    
+
     if (!pattern) {
-      return '请输入正则表达式模式';
+      return "请输入正则表达式模式";
     }
-    
+
     try {
       const regex = new RegExp(pattern, flags);
       const results: any = {
@@ -72,50 +87,57 @@ export class RegexTesterTool extends BaseTool {
         isValid: true,
         matches: [],
         groups: [],
-        replaceResult: '',
-        matchCount: 0
+        replaceResult: "",
+        matchCount: 0,
       };
-      
+
       // 查找所有匹配
       let match;
-      const globalRegex = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
-      
+      const globalRegex = new RegExp(
+        pattern,
+        flags.includes("g") ? flags : flags + "g"
+      );
+
       while ((match = globalRegex.exec(testText)) !== null) {
         results.matches.push({
           match: match[0],
           index: match.index,
           length: match[0].length,
-          groups: match.slice(1)
+          groups: match.slice(1),
         });
-        
+
         results.matchCount++;
-        
+
         // 避免无限循环
         if (match.index === globalRegex.lastIndex) {
           globalRegex.lastIndex++;
         }
       }
-      
+
       // 替换操作
       if (replaceText !== undefined) {
         results.replaceResult = testText.replace(regex, replaceText);
       }
-      
+
       // 测试单个匹配
       const singleMatch = testText.match(regex);
       if (singleMatch) {
         results.groups = singleMatch.slice(1);
       }
-      
+
       return JSON.stringify(results, null, 2);
     } catch (error) {
-      return JSON.stringify({
-        pattern: pattern,
-        flags: flags,
-        testText: testText,
-        isValid: false,
-        error: error instanceof Error ? error.message : '未知错误'
-      }, null, 2);
+      return JSON.stringify(
+        {
+          pattern: pattern,
+          flags: flags,
+          testText: testText,
+          isValid: false,
+          error: error instanceof Error ? error.message : "未知错误",
+        },
+        null,
+        2
+      );
     }
   }
 }

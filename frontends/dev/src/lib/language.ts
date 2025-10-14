@@ -13,6 +13,11 @@ export function detectBrowserLanguage(): Language {
     return "zh";
   }
 
+  // 检查是否为日语
+  if (browserLang.startsWith("ja")) {
+    return "ja";
+  }
+
   // 默认返回英文
   return "en";
 }
@@ -26,7 +31,10 @@ export function getUserLanguage(): Language {
 
   // 1. 检查本地存储的用户选择
   const savedLang = localStorage.getItem("preferred-language") as Language;
-  if (savedLang && (savedLang === "zh" || savedLang === "en")) {
+  if (
+    savedLang &&
+    (savedLang === "zh" || savedLang === "en" || savedLang === "ja")
+  ) {
     return savedLang;
   }
 
@@ -47,14 +55,19 @@ export function setUserLanguage(language: Language): void {
  * 语言配置
  */
 export const languageConfig = {
-  zh: {
-    name: "中文",
-    flag: "🇨🇳",
-    code: "zh",
-  },
   en: {
     name: "English",
     flag: "🇺🇸",
     code: "en",
+  },
+  ja: {
+    name: "日本語",
+    flag: "🇯🇵",
+    code: "ja",
+  },
+  zh: {
+    name: "中文",
+    flag: "🇨🇳",
+    code: "zh",
   },
 } as const;

@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class JSONValidatorTool extends BaseTool {
@@ -8,9 +8,11 @@ export class JSONValidatorTool extends BaseTool {
   category: ToolCategory = "code";
   icon = "check-circle";
   color = "bg-green-500";
+  inputType: InputType = "code";
+  outputType: OutputType = "text";
   inputLanguage = "json";
   inputPlaceholder = "Enter JSON to validate...";
-  outputLanguage = "json";
+  outputLanguage = "text";
   initialInput = '{"name": "John", "age": 30}';
   options = [
     {
@@ -36,7 +38,7 @@ export class JSONValidatorTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "JSON Validator",
@@ -65,6 +67,15 @@ export class JSONValidatorTool extends BaseTool {
             description: "Number of spaces for indentation",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "JSONバリデーター",
+        description: "JSONデータを検証・フォーマット",
+        inputPlaceholder: "検証するJSONを入力してください...",
+        options: this.options,
       };
     }
 

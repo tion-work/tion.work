@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class XMLValidatorTool extends BaseTool {
@@ -8,9 +8,11 @@ export class XMLValidatorTool extends BaseTool {
   category: ToolCategory = "code";
   icon = "file-code";
   color = "bg-blue-500";
+  inputType: InputType = "code";
+  outputType: OutputType = "text";
   inputLanguage = "xml";
   inputPlaceholder = "Enter XML to validate...";
-  outputLanguage = "xml";
+  outputLanguage = "text";
   initialInput =
     '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <item>Value</item>\n</root>';
   options = [
@@ -37,7 +39,7 @@ export class XMLValidatorTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "XML Validator",
@@ -66,6 +68,15 @@ export class XMLValidatorTool extends BaseTool {
             description: "Check if XML is well-formed",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "XMLバリデーター",
+        description: "XMLデータを検証・フォーマット",
+        inputPlaceholder: "検証するXMLを入力してください...",
+        options: this.options,
       };
     }
 

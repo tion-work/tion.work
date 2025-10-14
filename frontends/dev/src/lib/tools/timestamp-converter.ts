@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class TimestampConverterTool extends BaseTool {
@@ -8,10 +8,12 @@ export class TimestampConverterTool extends BaseTool {
   category: ToolCategory = "utility";
   icon = "clock";
   color = "bg-orange-500";
-  inputLanguage = "text";
+  inputType: InputType = "text";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
   inputPlaceholder = "请输入时间戳或日期...";
-  outputLanguage = "text";
-  initialInput = "";
+  outputLanguage = undefined;
+  initialInput = "1640995200000";
   options = [
     {
       name: "inputFormat",
@@ -43,7 +45,7 @@ export class TimestampConverterTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "Timestamp Converter",
@@ -74,6 +76,44 @@ export class TimestampConverterTool extends BaseTool {
               { label: "ISO 8601", value: "iso" },
               { label: "Timestamp (seconds)", value: "timestamp" },
               { label: "Timestamp (milliseconds)", value: "timestamp_ms" },
+              { label: "YYYY-MM-DD HH:mm:ss", value: "datetime" },
+              { label: "YYYY-MM-DD", value: "date" },
+            ],
+          },
+        ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "タイムスタンプコンバーター",
+        description: "タイムスタンプと日付形式の相互変換",
+        inputPlaceholder: "タイムスタンプまたは日付を入力してください...",
+        options: [
+          {
+            name: "inputFormat",
+            label: "入力フォーマット",
+            type: "select",
+            defaultValue: "auto",
+            description: "入力フォーマットを選択",
+            options: [
+              { label: "自動検出", value: "auto" },
+              { label: "タイムスタンプ（秒）", value: "timestamp" },
+              { label: "タイムスタンプ（ミリ秒）", value: "timestamp_ms" },
+              { label: "ISO 8601", value: "iso" },
+              { label: "YYYY-MM-DD", value: "date" },
+            ],
+          },
+          {
+            name: "outputFormat",
+            label: "出力フォーマット",
+            type: "select",
+            defaultValue: "iso",
+            description: "出力フォーマットを選択",
+            options: [
+              { label: "ISO 8601", value: "iso" },
+              { label: "タイムスタンプ（秒）", value: "timestamp" },
+              { label: "タイムスタンプ（ミリ秒）", value: "timestamp_ms" },
               { label: "YYYY-MM-DD HH:mm:ss", value: "datetime" },
               { label: "YYYY-MM-DD", value: "date" },
             ],

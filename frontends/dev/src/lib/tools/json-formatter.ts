@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class JsonFormatterTool extends BaseTool {
@@ -8,10 +8,12 @@ export class JsonFormatterTool extends BaseTool {
   category: ToolCategory = "code";
   icon = "code";
   color = "bg-blue-500";
+  inputType: InputType = "code";
+  outputType: OutputType = "json";
   inputLanguage = "json";
   inputPlaceholder = "请输入 JSON 数据...";
   outputLanguage = "json";
-  initialInput = "";
+  initialInput = `{"name":"TiON","version":"1.0.0","active":true}`;
   options = [
     {
       name: "indent",
@@ -36,7 +38,7 @@ export class JsonFormatterTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "JSON Formatter",
@@ -64,6 +66,37 @@ export class JsonFormatterTool extends BaseTool {
             type: "boolean",
             defaultValue: false,
             description: "Minify JSON output",
+          },
+        ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "JSONフォーマッター",
+        description: "圧縮と整形をサポートするJSONデータフォーマットツール",
+        inputPlaceholder: "JSONデータを入力してください...",
+        options: [
+          {
+            name: "indent",
+            label: "インデント",
+            type: "number",
+            defaultValue: 2,
+            description: "インデントのスペース数",
+          },
+          {
+            name: "sortKeys",
+            label: "キーをソート",
+            type: "boolean",
+            defaultValue: false,
+            description: "キーをアルファベット順にソート",
+          },
+          {
+            name: "minify",
+            label: "圧縮",
+            type: "boolean",
+            defaultValue: false,
+            description: "JSON出力を圧縮",
           },
         ],
       };

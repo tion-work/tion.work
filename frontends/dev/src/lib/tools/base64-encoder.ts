@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class Base64EncoderTool extends BaseTool {
@@ -8,10 +8,12 @@ export class Base64EncoderTool extends BaseTool {
   category: ToolCategory = "data";
   icon = "lock";
   color = "bg-blue-500";
-  inputLanguage = "json";
-  inputPlaceholder = "请输入 JSON 数据...";
-  outputLanguage = "json";
-  initialInput = "";
+  inputType: InputType = "textarea";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
+  inputPlaceholder = "请输入要编码/解码的文本...";
+  outputLanguage = undefined;
+  initialInput = "Hello World!";
   options = [
     {
       name: "operation",
@@ -33,7 +35,7 @@ export class Base64EncoderTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "Base64 Encoder",
@@ -57,6 +59,35 @@ export class Base64EncoderTool extends BaseTool {
             type: "boolean",
             defaultValue: false,
             description: "Use URL-safe Base64 encoding",
+          },
+        ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "Base64エンコーダー",
+        description: "Base64エンコード・デコードツール",
+        inputPlaceholder:
+          "エンコード/デコードするテキストを入力してください...",
+        options: [
+          {
+            name: "operation",
+            label: "操作",
+            type: "select",
+            defaultValue: "encode",
+            description: "エンコードまたはデコード操作を選択",
+            options: [
+              { label: "エンコード", value: "encode" },
+              { label: "デコード", value: "decode" },
+            ],
+          },
+          {
+            name: "urlSafe",
+            label: "URL安全",
+            type: "boolean",
+            defaultValue: false,
+            description: "URL安全なBase64エンコードを使用",
           },
         ],
       };

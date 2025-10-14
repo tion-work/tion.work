@@ -1,4 +1,4 @@
-import { ToolCategory, ToolConfig } from "../../types";
+import { InputType, OutputType, ToolCategory, ToolConfig } from "../../types";
 
 export abstract class BaseTool {
   abstract id: string;
@@ -8,13 +8,15 @@ export abstract class BaseTool {
   abstract icon: string;
   abstract color: string;
   abstract options: any[];
+  abstract inputType: InputType;
+  abstract outputType: OutputType;
   abstract inputLanguage?: string;
   abstract inputPlaceholder?: string;
   abstract outputLanguage?: string;
   abstract initialInput?: string;
 
   // 多语言支持
-  abstract getLocalizedContent(language: "zh" | "en"): {
+  abstract getLocalizedContent(language: "zh" | "en" | "ja"): {
     name: string;
     description: string;
     inputPlaceholder?: string;
@@ -50,6 +52,8 @@ export abstract class BaseTool {
       category: this.category,
       icon: this.icon,
       options: this.options,
+      inputType: this.inputType,
+      outputType: this.outputType,
       processor: this.process.bind(this),
       validator: this.validate.bind(this),
     };
@@ -75,12 +79,17 @@ export class ToolRegistry {
     return this.getAll().filter((tool) => tool.category === category);
   }
 
-  static search(query: string): BaseTool[] {
+  static search(
+    query: string,
+    language: "zh" | "en" | "ja" = "zh"
+  ): BaseTool[] {
     const lowercaseQuery = query.toLowerCase();
-    return this.getAll().filter(
-      (tool) =>
-        tool.name.toLowerCase().includes(lowercaseQuery) ||
-        tool.description.toLowerCase().includes(lowercaseQuery)
-    );
+    return this.getAll().filter((tool) => {
+      const localizedContent = tool.getLocalizedContent(language);
+      return (
+        localizedContent.name.toLowerCase().includes(lowercaseQuery) ||
+        localizedContent.description.toLowerCase().includes(lowercaseQuery)
+      );
+    });
   }
 }

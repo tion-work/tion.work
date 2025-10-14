@@ -2,6 +2,7 @@
 
 import { getUserLanguage, setUserLanguage } from "@/lib/language";
 import { enContent } from "@/locales/en";
+import { jaContent } from "@/locales/ja";
 import { zhContent } from "@/locales/zh";
 import { Language } from "@/types";
 import {
@@ -47,7 +48,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   };
 
   // 根据语言选择内容
-  const content = language === "zh" ? zhContent : enContent;
+  const content =
+    language === "zh" ? zhContent : language === "ja" ? jaContent : enContent;
 
   return (
     <LanguageContext.Provider

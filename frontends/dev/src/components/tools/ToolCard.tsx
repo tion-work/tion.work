@@ -1,13 +1,21 @@
 import { Card } from "@/components/ui/Card";
-import { ToolCardProps } from "@/types";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { BaseTool } from "@/lib/tools/base";
 import { HelpCircle } from "lucide-react";
 import React from "react";
+
+interface ToolCardProps {
+  tool: BaseTool;
+  onClick: () => void;
+  className?: string;
+}
 
 export const ToolCard: React.FC<ToolCardProps> = ({
   tool,
   onClick,
   className,
 }) => {
+  const { language } = useLanguage();
   // 使用默认图标，避免动态导入的复杂性
   const IconComponent = HelpCircle;
 
@@ -27,14 +35,16 @@ export const ToolCard: React.FC<ToolCardProps> = ({
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-              {tool.name}
+              {tool.getLocalizedContent(language || "zh").name}
             </h3>
             <span className="inline-block text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full mt-1">
               {tool.category}
             </span>
           </div>
         </div>
-        <p className="text-sm text-gray-600 flex-1">{tool.description}</p>
+        <p className="text-sm text-gray-600 flex-1">
+          {tool.getLocalizedContent(language || "zh").description}
+        </p>
         <div className="mt-3 flex items-center justify-between">
           <span className="text-xs text-gray-400">点击使用</span>
         </div>

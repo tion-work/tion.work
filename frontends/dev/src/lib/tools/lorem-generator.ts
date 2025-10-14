@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class LoremGeneratorTool extends BaseTool {
@@ -8,9 +8,11 @@ export class LoremGeneratorTool extends BaseTool {
   category: ToolCategory = "text";
   icon = "type";
   color = "bg-orange-500";
-  inputLanguage = "text";
+  inputType: InputType = "text";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
   inputPlaceholder = "Enter number of paragraphs...";
-  outputLanguage = "text";
+  outputLanguage = undefined;
   initialInput = "3";
   options = [
     {
@@ -47,7 +49,7 @@ export class LoremGeneratorTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "Lorem Ipsum Generator",
@@ -129,6 +131,15 @@ export class LoremGeneratorTool extends BaseTool {
         },
       ],
     };
+
+    if (language === "ja") {
+      return {
+        name: "Lorem Ipsumジェネレーター",
+        description: "Lorem Ipsumプレースホルダーテキストを生成",
+        inputPlaceholder: "段落数を入力してください...",
+        options: this.options,
+      };
+    }
   }
 
   async process(

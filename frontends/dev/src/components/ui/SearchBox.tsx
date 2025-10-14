@@ -182,6 +182,8 @@ export function SearchBox({
                   <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     {language === "en"
                       ? `Search Results (${results.length})`
+                      : language === "ja"
+                      ? `検索結果 (${results.length})`
                       : `搜索结果 (${results.length})`}
                   </div>
                   {results.map((result) => (
@@ -210,7 +212,11 @@ export function SearchBox({
                 </div>
               ) : (
                 <div className="px-3 py-4 text-center text-sm text-gray-500">
-                  {language === "en" ? "No tools found" : "没有找到相关工具"}
+                  {language === "en"
+                    ? "No tools found"
+                    : language === "ja"
+                    ? "ツールが見つかりません"
+                    : "没有找到相关工具"}
                 </div>
               )}
             </div>
@@ -221,7 +227,11 @@ export function SearchBox({
                 <div className="mb-4">
                   <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center">
                     <Clock className="h-3 w-3 mr-1" />
-                    {language === "en" ? "Recent Searches" : "最近搜索"}
+                    {language === "en"
+                      ? "Recent Searches"
+                      : language === "ja"
+                      ? "最近の検索"
+                      : "最近搜索"}
                   </div>
                   <div className="space-y-1">
                     {recentSearches.map((search, index) => (
@@ -240,7 +250,11 @@ export function SearchBox({
               <div>
                 <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center">
                   <TrendingUp className="h-3 w-3 mr-1" />
-                  {language === "en" ? "Popular Tools" : "热门工具"}
+                  {language === "en"
+                    ? "Popular Tools"
+                    : language === "ja"
+                    ? "人気ツール"
+                    : "热门工具"}
                 </div>
                 <div className="space-y-1">
                   {popularTools.map((tool) => (

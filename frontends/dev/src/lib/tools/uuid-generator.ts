@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class UUIDGeneratorTool extends BaseTool {
@@ -8,9 +8,11 @@ export class UUIDGeneratorTool extends BaseTool {
   category: ToolCategory = "utility";
   icon = "hash";
   color = "bg-indigo-500";
-  inputLanguage = "text";
+  inputType: InputType = "text";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
   inputPlaceholder = "Enter number of UUIDs to generate...";
-  outputLanguage = "text";
+  outputLanguage = undefined;
   initialInput = "5";
   options = [
     {
@@ -42,7 +44,7 @@ export class UUIDGeneratorTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "UUID Generator",
@@ -77,6 +79,15 @@ export class UUIDGeneratorTool extends BaseTool {
             description: "Include hyphens in UUID",
           },
         ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "UUIDジェネレーター",
+        description: "様々な形式でUUIDを生成",
+        inputPlaceholder: "生成するUUID数を入力してください...",
+        options: this.options,
       };
     }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
+import { Dropdown } from "@/components/ui/Dropdown";
 import {
   getUserLanguage,
   languageConfig,
@@ -22,11 +22,12 @@ export function LanguageSwitcher({ className = "" }: LanguageSwitcherProps) {
     setCurrentLang(getUserLanguage());
   }, []);
 
-  const handleLanguageChange = (lang: Language) => {
-    if (lang === currentLang) return;
+  const handleLanguageChange = (lang: string) => {
+    const language = lang as Language;
+    if (language === currentLang) return;
 
-    setCurrentLang(lang);
-    setUserLanguage(lang);
+    setCurrentLang(language);
+    setUserLanguage(language);
 
     // 添加平滑过渡效果
     document.body.style.transition = "opacity 0.3s ease";
@@ -38,35 +39,37 @@ export function LanguageSwitcher({ className = "" }: LanguageSwitcherProps) {
     }, 150);
   };
 
+  // 准备下拉菜单数据
+  const dropdownItems = Object.entries(languageConfig).map(
+    ([code, config]) => ({
+      value: code,
+      label: config.name,
+      flag: config.flag,
+    })
+  );
+
   // 服务端渲染时显示默认状态
   if (!isClient) {
     return (
-      <div className={`flex items-center space-x-1 ${className}`}>
-        <Button variant="outline" size="sm" className="px-2 py-1 text-xs">
-          🇺🇸 EN
-        </Button>
+      <div className={`flex items-center ${className}`}>
+        <Dropdown
+          items={dropdownItems}
+          value="en"
+          onValueChange={handleLanguageChange}
+          triggerClassName="px-3 py-2"
+        />
       </div>
     );
   }
 
   return (
-    <div className={`flex items-center space-x-1 ${className}`}>
-      {Object.entries(languageConfig).map(([code, config]) => (
-        <Button
-          key={code}
-          variant={currentLang === code ? "primary" : "outline"}
-          size="sm"
-          onClick={() => handleLanguageChange(code as Language)}
-          className={`px-2 py-1 text-xs transition-all ${
-            currentLang === code
-              ? "bg-blue-600 text-white hover:bg-blue-700"
-              : "hover:bg-gray-100"
-          }`}
-        >
-          <span className="mr-1">{config.flag}</span>
-          {config.name}
-        </Button>
-      ))}
+    <div className={`flex items-center ${className}`}>
+      <Dropdown
+        items={dropdownItems}
+        value={currentLang}
+        onValueChange={handleLanguageChange}
+        triggerClassName="px-3 py-2"
+      />
     </div>
   );
 }

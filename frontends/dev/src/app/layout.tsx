@@ -3,7 +3,7 @@ import Header from "@/components/layout/Header";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-// import "./globals.css"; // 暂时使用 CDN 版本
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -118,45 +118,6 @@ export default function RootLayout({
           rel="alternate"
           hrefLang="x-default"
           href="https://dev.tion.work"
-        />
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              tailwind.config = {
-                theme: {
-                  extend: {
-                    colors: {
-                      primary: {
-                        50: '#eff6ff',
-                        100: '#dbeafe',
-                        200: '#bfdbfe',
-                        300: '#93c5fd',
-                        400: '#60a5fa',
-                        500: '#3b82f6',
-                        600: '#2563eb',
-                        700: '#1d4ed8',
-                        800: '#1e40af',
-                        900: '#1e3a8a',
-                      },
-                      secondary: {
-                        50: '#f8fafc',
-                        100: '#f1f5f9',
-                        200: '#e2e8f0',
-                        300: '#cbd5e1',
-                        400: '#94a3b8',
-                        500: '#64748b',
-                        600: '#475569',
-                        700: '#334155',
-                        800: '#1e293b',
-                        900: '#0f172a',
-                      }
-                    }
-                  }
-                }
-              }
-            `,
-          }}
         />
         {/* Google Analytics */}
         <script

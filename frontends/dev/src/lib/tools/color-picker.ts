@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class ColorPickerTool extends BaseTool {
@@ -8,10 +8,12 @@ export class ColorPickerTool extends BaseTool {
   category: ToolCategory = "design";
   icon = "palette";
   color = "bg-blue-500";
-  inputLanguage = "text";
+  inputType: InputType = "text";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
   inputPlaceholder = "请输入颜色值（如 #FF0000, rgb(255,0,0), red）...";
-  outputLanguage = "text";
-  initialInput = "";
+  outputLanguage = undefined;
+  initialInput = "#FF0000";
   options = [
     {
       name: "format",
@@ -52,7 +54,7 @@ export class ColorPickerTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "Color Picker",
@@ -60,6 +62,17 @@ export class ColorPickerTool extends BaseTool {
           "Color picker and format conversion tool supporting multiple color formats",
         inputPlaceholder:
           "Please enter color value (e.g., #FF0000, rgb(255,0,0), red)...",
+        options: [],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "カラーピッカー",
+        description:
+          "複数のカラーフォーマットをサポートするカラーピッカーとフォーマット変換ツール",
+        inputPlaceholder:
+          "カラー値を入力してください（例：#FF0000、rgb(255,0,0)、red）...",
         options: [],
       };
     }

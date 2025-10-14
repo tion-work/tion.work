@@ -1,7 +1,7 @@
 # dev.tion.work Makefile
 # 多前端 + 单后端架构
 
-.PHONY: help install dev start build test lint clean check lint-fix docker-up docker-down docker-logs deploy-api deploy-dev deploy-all check-deploy
+.PHONY: help install dev start backend stop restart build test lint clean check lint-fix deploy-api deploy-dev deploy-all check-deploy
 
 # 默认目标
 help:
@@ -17,7 +17,6 @@ help:
 	@echo "  mobile      - 仅启动移动端 (端口 3005)"
 	@echo "  crypto      - 仅启动加密货币导航站 (端口 3006)"
 	@echo "  backend     - 仅启动后端开发服务器 (端口 8080)"
-	@echo "  docker      - 使用 Docker 启动后端"
 	@echo "  stop        - 停止所有服务"
 	@echo "  restart     - 重启开发环境 (停止 + 启动)"
 	@echo ""
@@ -106,26 +105,18 @@ crypto:
 
 backend:
 	@echo "🚀 启动后端开发服务器 (端口 8080)..."
-	@cd backend && go run cmd/server/main.go
-
-# Docker 后端
-docker:
-	@echo "🐳 使用 Docker 启动后端..."
-	@cd backend && docker-compose up -d
+	@cd backend && docker compose up -d
 
 stop:
 	@echo "🛑 停止所有服务..."
 	@echo "停止前端开发服务器..."
 	@pkill -f "npm run dev" || true
-	@echo "停止后端 Docker 服务..."
-	@cd backend && docker compose down || true
 	@echo "✅ 所有服务已停止"
 
 restart:
 	@echo "🔄 重启开发环境..."
 	@echo "停止现有进程..."
 	@pkill -f "npm run dev" || true
-	@cd backend && docker compose down || true
 	@echo "重新启动..."
 	@$(MAKE) start
 
@@ -197,8 +188,6 @@ clean:
 	@cd frontends/docs && rm -rf .next node_modules
 	@cd frontends/mobile && rm -rf .next node_modules
 	@cd backend && rm -rf bin
-	@docker stop tion-backend || true
-	@docker rmi tion-backend || true
 	@echo "✅ 清理完成"
 
 

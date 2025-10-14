@@ -1,29 +1,40 @@
-import { BaseTool } from './base';
-import { ToolCategory } from '../../types';
+import { InputType, OutputType, ToolCategory } from "../../types";
+import { BaseTool } from "./base";
 
 export class PythonFormatterTool extends BaseTool {
-  id = 'python-formatter';
-  name = 'Python 格式化器';
-  description = '美化和格式化 Python 代码，支持 PEP 8 规范';
-  category: ToolCategory = 'code';
-  icon = 'code';
+  id = "python-formatter";
+  name = "Python 格式化器";
+  description = "美化和格式化 Python 代码，支持 PEP 8 规范";
+  category: ToolCategory = "code";
+  icon = "code";
   color = "bg-blue-500";
-  inputLanguage = "json";
-  inputPlaceholder = "请输入 JSON 数据...";
-  outputLanguage = "json";
-  initialInput = "";
+  inputType: InputType = "code";
+  outputType: OutputType = "code";
+  inputLanguage = "python";
+  inputPlaceholder = "请输入 Python 代码...";
+  outputLanguage = "python";
+  initialInput = "def hello():\nprint('Hello World')";
   options = [];
 
-  getLocalizedContent(language: 'zh' | 'en') {
-    if (language === 'en') {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
+    if (language === "en") {
       return {
-        name: this.name,
-        description: this.description,
-        inputPlaceholder: this.inputPlaceholder || "Please enter content...",
+        name: "Python Formatter",
+        description: "Format and beautify Python code with PEP 8 compliance",
+        inputPlaceholder: "Please enter Python code...",
         options: [],
       };
     }
-    
+
+    if (language === "ja") {
+      return {
+        name: "Pythonフォーマッター",
+        description: "PEP 8準拠でPythonコードをフォーマット・美化",
+        inputPlaceholder: "Pythonコードを入力してください...",
+        options: [],
+      };
+    }
+
     return {
       name: this.name,
       description: this.description,
@@ -37,7 +48,7 @@ export class PythonFormatterTool extends BaseTool {
       indentSize = 4,
       maxLineLength = 88,
       sortImports = true,
-      removeUnusedImports = true
+      removeUnusedImports = true,
     } = options;
 
     try {
@@ -45,10 +56,14 @@ export class PythonFormatterTool extends BaseTool {
         indentSize,
         maxLineLength,
         sortImports,
-        removeUnusedImports
+        removeUnusedImports,
       });
     } catch (error) {
-      throw new Error(`Python 格式化失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      throw new Error(
+        `Python 格式化失败: ${
+          error instanceof Error ? error.message : "未知错误"
+        }`
+      );
     }
   }
 
@@ -63,37 +78,41 @@ export class PythonFormatterTool extends BaseTool {
 
   private formatPython(code: string, options: any): string {
     let formatted = code;
-    
+
     // 移除多余的空行
-    formatted = formatted.replace(/\n\s*\n\s*\n/g, '\n\n');
-    
+    formatted = formatted.replace(/\n\s*\n\s*\n/g, "\n\n");
+
     // 添加适当的缩进
-    const lines = formatted.split('\n');
+    const lines = formatted.split("\n");
     let indentLevel = 0;
-    const indent = ' '.repeat(options.indentSize);
-    
-    const processedLines = lines.map(line => {
+    const indent = " ".repeat(options.indentSize);
+
+    const processedLines = lines.map((line) => {
       const trimmed = line.trim();
-      if (!trimmed) return '';
-      
+      if (!trimmed) return "";
+
       // 减少缩进级别
-      if (trimmed.startsWith('except') || trimmed.startsWith('finally') || 
-          trimmed.startsWith('else') || trimmed.startsWith('elif')) {
+      if (
+        trimmed.startsWith("except") ||
+        trimmed.startsWith("finally") ||
+        trimmed.startsWith("else") ||
+        trimmed.startsWith("elif")
+      ) {
         indentLevel = Math.max(0, indentLevel - 1);
       }
-      
+
       const indentedLine = indent.repeat(indentLevel) + trimmed;
-      
+
       // 增加缩进级别
-      if (trimmed.endsWith(':') && !trimmed.startsWith('#')) {
+      if (trimmed.endsWith(":") && !trimmed.startsWith("#")) {
         indentLevel++;
       }
-      
+
       return indentedLine;
     });
-    
-    formatted = processedLines.join('\n');
-    
+
+    formatted = processedLines.join("\n");
+
     return formatted;
   }
 }

@@ -1,4 +1,4 @@
-import { ToolCategory } from "../../types";
+import { InputType, OutputType, ToolCategory } from "../../types";
 import { BaseTool } from "./base";
 
 export class CSVConverterTool extends BaseTool {
@@ -8,18 +8,29 @@ export class CSVConverterTool extends BaseTool {
   category: ToolCategory = "data";
   icon = "file-text";
   color = "bg-blue-500";
-  inputLanguage = "json";
-  inputPlaceholder = "请输入 JSON 数据...";
-  outputLanguage = "json";
-  initialInput = "";
+  inputType: InputType = "textarea";
+  outputType: OutputType = "text";
+  inputLanguage = undefined;
+  inputPlaceholder = "请输入 JSON 或 CSV 数据...";
+  outputLanguage = undefined;
+  initialInput = '[{"name":"John","age":30},{"name":"Jane","age":25}]';
   options = [];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "CSV Converter",
         description: "Convert between JSON and CSV formats",
         inputPlaceholder: "Please enter JSON data...",
+        options: [],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "CSVコンバーター",
+        description: "JSONとCSV形式の相互変換",
+        inputPlaceholder: "JSONまたはCSVデータを入力してください...",
         options: [],
       };
     }

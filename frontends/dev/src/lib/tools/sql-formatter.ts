@@ -1,4 +1,4 @@
-import { ToolCategory } from "@/types";
+import { InputType, OutputType, ToolCategory } from "@/types";
 import { BaseTool } from "./base";
 
 export class SQLFormatterTool extends BaseTool {
@@ -8,6 +8,8 @@ export class SQLFormatterTool extends BaseTool {
   category: ToolCategory = "code";
   icon = "database";
   color = "bg-purple-500";
+  inputType: InputType = "code";
+  outputType: OutputType = "code";
   inputLanguage = "sql";
   inputPlaceholder = "Enter SQL query to format...";
   outputLanguage = "sql";
@@ -36,7 +38,7 @@ export class SQLFormatterTool extends BaseTool {
     },
   ];
 
-  getLocalizedContent(language: "zh" | "en") {
+  getLocalizedContent(language: "zh" | "en" | "ja") {
     if (language === "en") {
       return {
         name: "SQL Formatter",
@@ -63,6 +65,37 @@ export class SQLFormatterTool extends BaseTool {
             type: "boolean",
             defaultValue: false,
             description: "Align commas in column lists",
+          },
+        ],
+      };
+    }
+
+    if (language === "ja") {
+      return {
+        name: "SQLフォーマッター",
+        description: "SQLクエリをフォーマット・美化",
+        inputPlaceholder: "フォーマットするSQLクエリを入力してください...",
+        options: [
+          {
+            name: "indent",
+            label: "インデント",
+            type: "number",
+            defaultValue: 2,
+            description: "インデントのスペース数",
+          },
+          {
+            name: "uppercase",
+            label: "キーワードを大文字に",
+            type: "boolean",
+            defaultValue: true,
+            description: "SQLキーワードを大文字に変換",
+          },
+          {
+            name: "alignCommas",
+            label: "カンマを揃える",
+            type: "boolean",
+            defaultValue: false,
+            description: "カラムリストでカンマを揃える",
           },
         ],
       };

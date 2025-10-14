@@ -30,8 +30,12 @@ const Header: React.FC = () => {
             href="/"
             className="flex items-center space-x-2 group flex-shrink-0"
           >
-            <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <span className="text-white font-bold text-lg">T</span>
+            <div className="h-8 w-8 group-hover:scale-105 transition-transform">
+              <img
+                src="/icon.png"
+                alt="TiON Logo"
+                className="h-8 w-8 rounded-lg"
+              />
             </div>
             <span className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
               TiON
@@ -55,18 +59,7 @@ const Header: React.FC = () => {
 
             {/* 导航 - 桌面端显示 */}
             <nav className="hidden lg:flex items-center space-x-6">
-              <Link
-                href="/stats"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                {content.navigation.stats}
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                {content.navigation.about}
-              </Link>
+              {/* 导航链接已移除 */}
             </nav>
 
             {/* Mobile Menu */}
