@@ -51,6 +51,13 @@ export const jaContent = {
     recent: "最近",
   },
 
+  // Homepage
+  homepage: {
+    title: "すべてのツール",
+    description:
+      "コード処理、データ処理、セキュリティツールなど、開発者向けツールの完全なコレクションを探索してください",
+  },
+
   // Tool categories
   categories: {
     code: "コード処理",
@@ -59,6 +66,15 @@ export const jaContent = {
     design: "デザインツール",
     utility: "ユーティリティツール",
     text: "テキストツール",
+    time: "時間ツール",
+    network: "ネットワークツール",
+  },
+
+  // Tool card
+  toolCard: {
+    online: "オンライン",
+    free: "無料で使用",
+    useNow: "今すぐ使用",
   },
 
   // Page titles
@@ -67,7 +83,7 @@ export const jaContent = {
       title: "dev.tion.work - モダンな開発者ツールプラットフォーム",
       description:
         "コード処理、データ処理、セキュリティツールなど30以上のツールを提供する開発者向けワンストップソリューション。登録不要、リアルタイム処理、レスポンシブデザイン。",
-      subtitle: "20以上の開発者ツール、登録不要",
+      subtitle: "30以上の開発者ツール、登録不要",
       features: {
         fast: "超高速",
         fastDesc: "ミリ秒レベルの処理速度",
@@ -75,7 +91,7 @@ export const jaContent = {
         zeroConfigDesc: "登録不要で即座に使用可能",
         crossPlatform: "クロスプラットフォーム",
         crossPlatformDesc: "すべてのデバイスで動作",
-        tools: "20以上のツール",
+        tools: "30以上のツール",
         toolsDesc: "継続的に更新",
       },
     },

@@ -66,10 +66,12 @@ export function SearchBox({
   };
 
   useEffect(() => {
-    // 加载最近搜索记录
-    const saved = localStorage.getItem("recentSearches");
+    // 加载当前语言的最近搜索记录
+    const saved = localStorage.getItem(`recentSearches_${language}`);
     if (saved) {
       setRecentSearches(JSON.parse(saved));
+    } else {
+      setRecentSearches([]);
     }
 
     // 设置热门工具
@@ -107,18 +109,39 @@ export function SearchBox({
     setIsOpen(true);
   };
 
+  const handleSearchSubmit = (searchQuery: string) => {
+    if (!searchQuery.trim()) return;
+
+    // 保存搜索查询到最近搜索
+    const newRecent = [
+      searchQuery,
+      ...recentSearches.filter((s) => s !== searchQuery),
+    ].slice(0, 5);
+    setRecentSearches(newRecent);
+    localStorage.setItem(
+      `recentSearches_${language}`,
+      JSON.stringify(newRecent)
+    );
+
+    // 执行搜索
+    onSearch(searchQuery);
+  };
+
   const handleResultClick = (result: SearchResult) => {
     onResultSelect(result);
     setQuery("");
     setIsOpen(false);
 
-    // 保存到最近搜索
+    // 保存到当前语言的最近搜索
     const newRecent = [
       result.title,
       ...recentSearches.filter((s) => s !== result.title),
     ].slice(0, 5);
     setRecentSearches(newRecent);
-    localStorage.setItem("recentSearches", JSON.stringify(newRecent));
+    localStorage.setItem(
+      `recentSearches_${language}`,
+      JSON.stringify(newRecent)
+    );
   };
 
   const handleClear = () => {
@@ -130,6 +153,10 @@ export function SearchBox({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
+      setIsOpen(false);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearchSubmit(query);
       setIsOpen(false);
     }
   };

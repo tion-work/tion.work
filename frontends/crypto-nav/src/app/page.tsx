@@ -248,7 +248,7 @@ export default function Home() {
             <div className="bg-white rounded-lg px-6 py-3 shadow-md">
               <div className="flex items-center gap-2">
                 <Globe className="h-5 w-5 text-blue-500" />
-                <span className="font-semibold">30+</span>
+                <span className="font-semibold">20+</span>
                 <span className="text-gray-600">精选网站</span>
               </div>
             </div>

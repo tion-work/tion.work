@@ -1,7 +1,27 @@
+import { registerTools, ToolRegistry } from "@/lib/tools/registry";
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://dev.tion.work";
+
+  // 注册所有工具
+  registerTools();
+  const allTools = ToolRegistry.getAll();
+
+  // 生成工具页面
+  const toolPages = allTools.map((tool) => ({
+    url: `${baseUrl}/tools/${tool.id}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.9,
+    alternates: {
+      languages: {
+        "zh-CN": `${baseUrl}/tools/${tool.id}`,
+        "en-US": `${baseUrl}/tools/${tool.id}`,
+        "ja-JP": `${baseUrl}/tools/${tool.id}`,
+      },
+    },
+  }));
 
   return [
     {
@@ -13,6 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           "zh-CN": baseUrl,
           "en-US": baseUrl,
+          "ja-JP": baseUrl,
         },
       },
     },
@@ -25,6 +46,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           "zh-CN": `${baseUrl}/about`,
           "en-US": `${baseUrl}/about`,
+          "ja-JP": `${baseUrl}/about`,
         },
       },
     },
@@ -37,6 +59,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           "zh-CN": `${baseUrl}/stats`,
           "en-US": `${baseUrl}/stats`,
+          "ja-JP": `${baseUrl}/stats`,
         },
       },
     },
@@ -49,6 +72,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           "zh-CN": `${baseUrl}/privacy`,
           "en-US": `${baseUrl}/privacy`,
+          "ja-JP": `${baseUrl}/privacy`,
         },
       },
     },
@@ -61,69 +85,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
         languages: {
           "zh-CN": `${baseUrl}/terms`,
           "en-US": `${baseUrl}/terms`,
+          "ja-JP": `${baseUrl}/terms`,
         },
       },
     },
-    // 工具页面
-    {
-      url: `${baseUrl}/tools/json-formatter`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-      alternates: {
-        languages: {
-          "zh-CN": `${baseUrl}/tools/json-formatter`,
-          "en-US": `${baseUrl}/tools/json-formatter`,
-        },
-      },
-    },
-    {
-      url: `${baseUrl}/tools/base64-encoder`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-      alternates: {
-        languages: {
-          "zh-CN": `${baseUrl}/tools/base64-encoder`,
-          "en-US": `${baseUrl}/tools/base64-encoder`,
-        },
-      },
-    },
-    {
-      url: `${baseUrl}/tools/password-generator`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-      alternates: {
-        languages: {
-          "zh-CN": `${baseUrl}/tools/password-generator`,
-          "en-US": `${baseUrl}/tools/password-generator`,
-        },
-      },
-    },
-    {
-      url: `${baseUrl}/tools/timestamp-converter`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-      alternates: {
-        languages: {
-          "zh-CN": `${baseUrl}/tools/timestamp-converter`,
-          "en-US": `${baseUrl}/tools/timestamp-converter`,
-        },
-      },
-    },
-    {
-      url: `${baseUrl}/tools/qr-code-generator`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-      alternates: {
-        languages: {
-          "zh-CN": `${baseUrl}/tools/qr-code-generator`,
-          "en-US": `${baseUrl}/tools/qr-code-generator`,
-        },
-      },
-    },
+    // 动态生成所有工具页面
+    ...toolPages,
   ];
 }

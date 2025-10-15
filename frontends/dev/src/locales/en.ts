@@ -51,6 +51,13 @@ export const enContent = {
     recent: "Recent",
   },
 
+  // Homepage
+  homepage: {
+    title: "All Tools",
+    description:
+      "Explore our complete collection of developer tools, covering code processing, data processing, security tools, and more",
+  },
+
   // Tool categories
   categories: {
     code: "Code Processing",
@@ -59,6 +66,15 @@ export const enContent = {
     design: "Design Tools",
     utility: "Utility Tools",
     text: "Text Tools",
+    time: "Time Tools",
+    network: "Network Tools",
+  },
+
+  // Tool card
+  toolCard: {
+    online: "Online",
+    free: "Free to use",
+    useNow: "Use now",
   },
 
   // Page titles
@@ -67,7 +83,7 @@ export const enContent = {
       title: "dev.tion.work - Modern Developer Tools Platform",
       description:
         "One-stop solution for developers with 30+ tools including code processing, data processing, security tools. Zero registration required, real-time processing, responsive design.",
-      subtitle: "20+ Developer Tools, Zero Registration Required",
+      subtitle: "30+ Developer Tools, Zero Registration Required",
       features: {
         fast: "Lightning Fast",
         fastDesc: "Millisecond processing speed",
@@ -75,7 +91,7 @@ export const enContent = {
         zeroConfigDesc: "No registration required",
         crossPlatform: "Cross Platform",
         crossPlatformDesc: "Works on all devices",
-        tools: "20+ Tools",
+        tools: "30+ Tools",
         toolsDesc: "Continuously updated",
       },
     },

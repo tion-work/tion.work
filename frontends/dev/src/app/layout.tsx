@@ -24,6 +24,12 @@ export const metadata: Metadata = {
     "security tools",
     "online tools",
     "development efficiency",
+    "開発者ツール",
+    "コードフォーマッター",
+    "データ処理",
+    "セキュリティツール",
+    "オンラインツール",
+    "開発効率",
   ],
   authors: [{ name: "dev.tion.work" }],
   creator: "dev.tion.work",
@@ -39,6 +45,7 @@ export const metadata: Metadata = {
     languages: {
       "zh-CN": "https://dev.tion.work",
       "en-US": "https://dev.tion.work",
+      "ja-JP": "https://dev.tion.work",
     },
   },
   openGraph: {
@@ -56,7 +63,7 @@ export const metadata: Metadata = {
       },
     ],
     locale: "zh_CN",
-    alternateLocale: "en_US",
+    alternateLocale: ["en_US", "ja_JP"],
     type: "website",
   },
   twitter: {
@@ -114,6 +121,7 @@ export default function RootLayout({
         {/* 多语言SEO支持 */}
         <link rel="alternate" hrefLang="zh-CN" href="https://dev.tion.work" />
         <link rel="alternate" hrefLang="en-US" href="https://dev.tion.work" />
+        <link rel="alternate" hrefLang="ja-JP" href="https://dev.tion.work" />
         <link
           rel="alternate"
           hrefLang="x-default"

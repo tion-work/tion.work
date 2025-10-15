@@ -153,12 +153,20 @@ export default function ToolPage() {
   // 初始化期间显示加载状态
   if (isInitializing) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <Loading />
-          <p className="text-gray-600 mt-4">
-            {content.common.loadingTool || "加载工具中..."}
-          </p>
+      <div className="min-h-screen bg-white">
+        {/* 为固定header留出空间 */}
+        <div className="h-16"></div>
+
+        <div
+          className="flex items-center justify-center"
+          style={{ height: "calc(100vh - 4rem)" }}
+        >
+          <div className="text-center">
+            <Loading />
+            <p className="text-gray-600 mt-4">
+              {content.common.loadingTool || "加载工具中..."}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -167,14 +175,19 @@ export default function ToolPage() {
   // 工具未找到
   if (!tool) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-secondary-900 mb-4">
-            {content.common.toolNotFound || "工具未找到"}
-          </h1>
-          <p className="text-secondary-600">
-            {content.common.toolNotFoundDesc || "请检查工具 ID 是否正确"}
-          </p>
+      <div className="min-h-screen bg-white">
+        {/* 为固定header留出空间 */}
+        <div className="h-16"></div>
+
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-secondary-900 mb-4">
+              {content.common.toolNotFound || "工具未找到"}
+            </h1>
+            <p className="text-secondary-600">
+              {content.common.toolNotFoundDesc || "请检查工具 ID 是否正确"}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -182,6 +195,9 @@ export default function ToolPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* 为固定header留出空间 */}
+      <div className="h-16"></div>
+
       {/* Header - 极简设计 */}
       <div className="border-b border-gray-200 bg-white sticky top-16 z-40">
         <div className="container mx-auto px-4 py-6">

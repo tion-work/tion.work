@@ -51,6 +51,13 @@ export const zhContent = {
     recent: "最近",
   },
 
+  // 首页
+  homepage: {
+    title: "所有工具",
+    description:
+      "探索我们完整的开发者工具集合，涵盖代码处理、数据处理、安全工具等各个方面",
+  },
+
   // 工具分类
   categories: {
     code: "代码处理",
@@ -59,6 +66,15 @@ export const zhContent = {
     design: "设计工具",
     utility: "实用工具",
     text: "文本工具",
+    time: "时间工具",
+    network: "网络工具",
+  },
+
+  // 工具卡片
+  toolCard: {
+    online: "在线",
+    free: "免费使用",
+    useNow: "立即使用",
   },
 
   // 页面标题
@@ -67,7 +83,7 @@ export const zhContent = {
       title: "dev.tion.work - 现代化开发者工具集合平台",
       description:
         "为开发者提供一站式解决方案，包含代码处理、数据处理、安全工具等30+个实用工具。零注册使用，实时处理，响应式设计。",
-      subtitle: "20+ 个开发者工具，零注册使用",
+      subtitle: "30+ 个开发者工具，零注册使用",
       features: {
         fast: "极速响应",
         fastDesc: "毫秒级处理速度",
@@ -75,7 +91,7 @@ export const zhContent = {
         zeroConfigDesc: "无需注册即可使用",
         crossPlatform: "全平台",
         crossPlatformDesc: "支持所有设备",
-        tools: "20+ 工具",
+        tools: "30+ 工具",
         toolsDesc: "持续更新中",
       },
     },
