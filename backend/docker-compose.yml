@@ -1,15 +1,14 @@
-version: "3.8"
-
 services:
   tion-backend:
     build: .
     ports:
-      - "8080:8080"
+      - "8080:8080" # 聊天 API 服务端口
     environment:
       - PORT=8080
       - GIN_MODE=debug
-      - DATABASE_URL=postgres://postgres:password@host.docker.internal:5432/tion_db?sslmode=disable
+      - DATABASE_URL=postgres://postgres:password@host.docker.internal:5432/tion_work?sslmode=disable
       - REDIS_URL=redis://host.docker.internal:6379/0
       - API_KEY=${API_KEY}
+      - CURSOR_API_KEY=key_a41791e71f6b02ffe959a88b1f4467387175b3bf93c4471bf9b9b813c2987e9d
     volumes:
       - ./logs:/app/logs

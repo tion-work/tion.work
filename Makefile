@@ -109,6 +109,8 @@ backend:
 
 stop:
 	@echo "🛑 停止所有服务..."
+	@echo "停止后端Docker容器..."
+	@cd backend && docker compose down || true
 	@echo "停止前端开发服务器..."
 	@pkill -f "npm run dev" || true
 	@echo "✅ 所有服务已停止"
@@ -116,6 +118,7 @@ stop:
 restart:
 	@echo "🔄 重启开发环境..."
 	@echo "停止现有进程..."
+	@cd backend && docker compose down || true
 	@pkill -f "npm run dev" || true
 	@echo "重新启动..."
 	@$(MAKE) start
@@ -124,7 +127,7 @@ restart:
 build:
 	@echo "🔨 构建所有项目..."
 	@echo "构建后端项目..."
-	@cd backend && go build -o bin/tion-backend cmd/server/main.go || echo "⚠️  Go 未安装，跳过后端构建"
+	@cd backend && docker compose build --no-cache
 	@echo "构建前端项目..."
 	@cd frontends/index && npm run build
 	@cd frontends/dev && npm run build
