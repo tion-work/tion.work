@@ -159,6 +159,39 @@ check:
 	@cd backend && go vet ./... && go fmt ./...
 	@./scripts/check-syntax.sh
 
+# AI 代码审查
+review:
+	@echo "🤖 开始 AI 代码审查..."
+	@echo "请选择审查类型:"
+	@echo "1) 代码审查 (review)"
+	@echo "2) 架构分析 (analyze)"
+	@echo "3) 安全检查 (security)"
+	@echo "4) 性能分析 (performance)"
+	@echo "5) 审查所有代码文件"
+	@read -p "请输入选择 (1-5): " choice; \
+	case $$choice in \
+		1) ./scripts/ai-code-review.sh backend/cmd/chat/main.go review ;; \
+		2) ./scripts/ai-code-review.sh backend/cmd/chat/main.go analyze ;; \
+		3) ./scripts/ai-code-review.sh backend/cmd/chat/main.go security ;; \
+		4) ./scripts/ai-code-review.sh backend/cmd/chat/main.go performance ;; \
+		5) ./scripts/ai-code-review.sh . review ;; \
+		*) echo "❌ 无效选择" ;; \
+	esac
+
+# 快速代码审查
+review-quick:
+	@echo "🚀 快速 AI 代码审查..."
+	@./scripts/ai-code-review.sh backend/cmd/chat/main.go review
+
+# 架构分析
+analyze:
+	@echo "🏗️ AI 架构分析..."
+	@./scripts/ai-code-review.sh . analyze
+
+# 安全检查
+security:
+	@echo "🛡️ AI 安全检查..."
+	@./scripts/ai-code-review.sh . security
 
 # 代码检查
 lint:
@@ -266,3 +299,74 @@ deploy-backend:
 check-deploy:
 	@echo "🔍 检查生产环境部署状态..."
 	@./scripts/check-deployment.sh
+
+# 组件开发
+component:
+	@echo "🎨 创建新组件..."
+	@echo "请使用: make component-basic <组件名称> [项目名称]"
+	@echo "示例: make component-basic UserAvatar shared"
+
+# 基础组件创建
+component-basic:
+	@echo "🎨 创建基础组件..."
+	@./scripts/create-component-basic.sh $(ARGS)
+
+# 为特定项目创建组件
+component-dev:
+	@echo "🎨 为开发工具站创建组件..."
+	@./scripts/create-component.sh -p dev
+
+component-admin:
+	@echo "🎨 为管理后台创建组件..."
+	@./scripts/create-component.sh -p admin
+
+component-mobile:
+	@echo "🎨 为移动端创建组件..."
+	@./scripts/create-component.sh -p mobile
+
+# 组件管理
+component-list:
+	@echo "📋 列出所有组件..."
+	@find shared/components -name "*.tsx" -type f | sed 's|shared/components/||' | sed 's|/.*||' | sort | uniq
+
+component-info:
+	@echo "ℹ️ 组件信息..."
+	@echo "组件总数: $$(find shared/components -name "*.tsx" -type f | wc -l)"
+	@echo "按分类统计:"
+	@echo "  - 展示组件: $$(find shared/components -name "*.tsx" -path "*/display/*" | wc -l)"
+	@echo "  - 表单组件: $$(find shared/components -name "*.tsx" -path "*/form/*" | wc -l)"
+	@echo "  - 布局组件: $$(find shared/components -name "*.tsx" -path "*/layout/*" | wc -l)"
+	@echo "  - 导航组件: $$(find shared/components -name "*.tsx" -path "*/navigation/*" | wc -l)"
+	@echo "  - 反馈组件: $$(find shared/components -name "*.tsx" -path "*/feedback/*" | wc -l)"
+	@echo "  - 数据组件: $$(find shared/components -name "*.tsx" -path "*/data/*" | wc -l)"
+	@echo "  - 媒体组件: $$(find shared/components -name "*.tsx" -path "*/media/*" | wc -l)"
+	@echo "  - 工具组件: $$(find shared/components -name "*.tsx" -path "*/utility/*" | wc -l)"
+
+# 组件测试
+component-test:
+	@echo "🧪 运行组件测试..."
+	@for project in index dev admin docs mobile crypto-nav; do \
+		if [ -d "frontends/$$project" ]; then \
+			echo "测试项目: $$project"; \
+			cd "frontends/$$project" && npm test -- --passWithNoTests || true; \
+			cd ../..; \
+		fi; \
+	done
+
+# 组件构建
+component-build:
+	@echo "🔨 构建组件库..."
+	@if [ -d "shared/components" ]; then \
+		echo "构建共享组件库..."; \
+		cd shared && npm run build || echo "共享组件库构建失败"; \
+		cd ..; \
+	fi
+
+# 组件发布
+component-publish:
+	@echo "📦 发布组件库..."
+	@if [ -d "shared/components" ]; then \
+		echo "发布共享组件库..."; \
+		cd shared && npm publish || echo "组件库发布失败"; \
+		cd ..; \
+	fi

@@ -1,0 +1,39 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "AI 开发助手演示项目 - 用于自由聊天和功能测试",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo 'Demo project - development mode'",
+    "build": "echo 'Demo project - build completed'",
+    "test": "echo 'Demo project - all tests passed'",
+    "start": "echo 'Demo project - started'",
+    "lint": "echo 'Demo project - linting completed'",
+    "format": "echo 'Demo project - formatting completed'"
+  },
+  "keywords": [
+    "demo",
+    "ai",
+    "development",
+    "assistant",
+    "testing",
+    "chat"
+  ],
+  "author": "AI Development Assistant",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

@@ -1,4 +1,4 @@
-module tion-backend
+module tion.work/backend
 
 go 1.23
 

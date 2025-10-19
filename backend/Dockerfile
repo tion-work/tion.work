@@ -21,6 +21,8 @@ ENV PATH="/root/.local/bin:/usr/local/go/bin:$PATH"
 ENV GOPATH="/root/go"
 ENV GOBIN="/root/go/bin"
 ENV CURSOR_API_KEY=key_a41791e71f6b02ffe959a88b1f4467387175b3bf93c4471bf9b9b813c2987e9d
+ENV WORKSPACE="/workspace"
+ENV PORT="8080"
 
 # 配置 bashrc 以便进入容器时自动设置 PATH
 RUN echo 'export PATH="/root/.local/bin:/usr/local/go/bin:$PATH"' >> /root/.bashrc && \
@@ -46,28 +48,9 @@ RUN go build -o chat-service cmd/chat/main.go
 # 复制聊天应用前端文件
 COPY templates/chat-app.html /workspace/templates/chat-app.html
 
-# 创建启动脚本，自动克隆项目
-RUN echo '#!/bin/bash\n\
-# 如果项目不存在，则克隆项目\n\
-if [ ! -d "/workspace/tion.work" ]; then\n\
-    echo "正在克隆 tion.work 项目..."\n\
-    git clone https://github.com/tion-work/tion.work.git\n\
-    echo "项目克隆完成！"\n\
-    echo "项目位置: /workspace/tion.work"\n\
-    echo "使用以下命令进入项目目录:"\n\
-    echo "  cd /workspace/tion.work"\n\
-else\n\
-    echo "项目已存在: /workspace/tion.work"\n\
-    echo "使用以下命令进入项目目录:"\n\
-    echo "  cd /workspace/tion.work"\n\
-fi\n\
-\n\
-# 保持容器运行\n\
-exec "$@"' > /usr/local/bin/entrypoint.sh && \
-    chmod +x /usr/local/bin/entrypoint.sh
+# 复制初始化脚本
+COPY scripts/init.sh /usr/local/bin/init.sh
+RUN chmod +x /usr/local/bin/init.sh
 
 # 设置入口点
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# 启动聊天服务
-CMD ["./chat-service"]
+ENTRYPOINT ["/usr/local/bin/init.sh"]

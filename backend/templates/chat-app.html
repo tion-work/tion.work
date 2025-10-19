@@ -451,6 +451,26 @@
           </div>
 
           <div class="menu-section">
+            <div class="menu-section-title">🔍 AI 代码审查</div>
+            <button class="menu-item" data-command="review" data-type="review">
+              <div>代码审查</div>
+              <div class="menu-item-description">AI 全面代码审查</div>
+            </button>
+            <button class="menu-item" data-command="analyze" data-type="analyze">
+              <div>架构分析</div>
+              <div class="menu-item-description">AI 深度架构分析</div>
+            </button>
+            <button class="menu-item" data-command="security" data-type="review">
+              <div>安全检查</div>
+              <div class="menu-item-description">AI 安全性检查</div>
+            </button>
+            <button class="menu-item" data-command="performance" data-type="analyze">
+              <div>性能分析</div>
+              <div class="menu-item-description">AI 性能优化建议</div>
+            </button>
+          </div>
+
+          <div class="menu-section">
             <div class="menu-section-title">🧹 清理命令</div>
             <button class="menu-item" data-command="make clean">
               <div>clean</div>
@@ -587,14 +607,26 @@
       sendButton.disabled = true;
 
       try {
-        const response = await fetch(`${API_BASE}/api/chat`, {
+        // 判断是否为代码审查请求
+        let apiEndpoint = '/api/chat';
+        let requestBody = { message };
+
+        if (message.includes('请审查以下代码') || message.includes('请分析以下代码') ||
+          message.includes('请对以下代码进行安全性检查') || message.includes('请分析以下代码的性能问题')) {
+          // 代码审查请求
+          if (message.includes('请审查以下代码') || message.includes('请对以下代码进行安全性检查')) {
+            apiEndpoint = '/api/review';
+          } else if (message.includes('请分析以下代码') || message.includes('请分析以下代码的性能问题')) {
+            apiEndpoint = '/api/analyze';
+          }
+        }
+
+        const response = await fetch(`${API_BASE}${apiEndpoint}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            message: message
-          })
+          body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
@@ -651,12 +683,35 @@
       menuDropdown.classList.remove('show');
     }
 
-    function selectCommand(command) {
+    function selectCommand(command, type) {
       // 添加提示信息
       const commandName = command.replace('make ', '');
-      addMessage(`💡 已选择命令: <strong>${command}</strong><br>正在执行...`, false);
 
-      messageInput.value = command;
+      if (type === 'review' || type === 'analyze') {
+        // AI 代码审查命令
+        let prompt = '';
+        switch (command) {
+          case 'review':
+            prompt = '请审查以下代码，从代码质量、安全性、最佳实践等角度进行分析：\n\n[请在此处粘贴要审查的代码]';
+            break;
+          case 'analyze':
+            prompt = '请分析以下代码的架构设计、设计模式、依赖关系等：\n\n[请在此处粘贴要分析的代码]';
+            break;
+          case 'security':
+            prompt = '请对以下代码进行安全性检查，重点关注安全漏洞和风险：\n\n[请在此处粘贴要检查的代码]';
+            break;
+          case 'performance':
+            prompt = '请分析以下代码的性能问题并提供优化建议：\n\n[请在此处粘贴要分析的代码]';
+            break;
+        }
+        addMessage(`🔍 已选择 AI 审查: <strong>${command}</strong><br>请粘贴要审查的代码...`, false);
+        messageInput.value = prompt;
+      } else {
+        // 普通 Makefile 命令
+        addMessage(`💡 已选择命令: <strong>${command}</strong><br>正在执行...`, false);
+        messageInput.value = command;
+      }
+
       closeMenu();
       sendMessage();
     }
@@ -680,7 +735,8 @@
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         const command = item.getAttribute('data-command');
-        selectCommand(command);
+        const type = item.getAttribute('data-type');
+        selectCommand(command, type);
       });
     });
 

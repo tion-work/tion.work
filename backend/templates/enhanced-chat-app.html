@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 开发助手 - Tion</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .chat-container {
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .chat-header h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .chat-header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .project-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .project-selector label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .project-selector select {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 14px;
+      min-width: 120px;
+    }
+
+    .project-selector select option {
+      background: #667eea;
+      color: white;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: #f8fafc;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .message.user .message-avatar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .message.assistant .message-avatar {
+      background: #e2e8f0;
+      color: #64748b;
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      word-wrap: break-word;
+    }
+
+    .message.user .message-content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .message.assistant .message-content {
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #1e293b;
+    }
+
+    .message-time {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+
+    .message.user .message-time {
+      text-align: right;
+    }
+
+    .streaming-message {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 10px 0;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .streaming-message .log-line {
+      margin: 2px 0;
+      padding: 2px 0;
+    }
+
+    .streaming-message .log-info {
+      color: #059669;
+    }
+
+    .streaming-message .log-error {
+      color: #dc2626;
+    }
+
+    .streaming-message .log-warning {
+      color: #d97706;
+    }
+
+    .chat-input-container {
+      padding: 20px;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 24px;
+      font-size: 14px;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus {
+      border-color: #667eea;
+    }
+
+    .chat-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .sidebar {
+      width: 300px;
+      background: #f8fafc;
+      border-left: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: white;
+    }
+
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .project-info {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .project-info h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .project-info p {
+      font-size: 12px;
+      color: #64748b;
+      margin: 4px 0;
+    }
+
+    .project-status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-inactive {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .quick-actions {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .quick-actions h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+
+    .quick-action-btn {
+      width: 100%;
+      padding: 8px 12px;
+      margin: 4px 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #64748b;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .quick-action-btn:hover {
+      background: #f1f5f9;
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .success-message {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: 200px;
+        border-left: none;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .chat-header {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .header-left,
+      .header-right {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="header-left">
+        <div>
+          <h1>🤖 AI 开发助手</h1>
+          <p>智能代码生成与项目管理平台</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="project-selector">
+          <label for="projectSelect">项目:</label>
+          <select id="projectSelect">
+            <option value="">选择项目...</option>
+          </select>
+        </div>
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span id="connectionStatus">已连接</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="chat-panel">
+        <div class="chat-messages" id="chatMessages">
+          <div class="message assistant">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+              <div>欢迎使用 AI 开发助手！我可以帮你：</div>
+              <div style="margin-top: 8px;">
+                • 生成和修改代码<br>
+                • 进行代码审查和分析<br>
+                • 管理项目依赖和构建<br>
+                • 执行 Git 操作<br>
+                • 一键部署到 Netlify
+              </div>
+              <div class="message-time" id="welcomeTime"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-container">
+          <div class="chat-input-wrapper">
+            <textarea id="messageInput" class="chat-input" placeholder="描述你的开发需求，例如：为 dev 项目添加一个用户登录组件..."
+              rows="1"></textarea>
+            <div class="chat-buttons">
+              <button id="sendBtn" class="btn btn-primary">
+                <span id="sendBtnText">发送</span>
+                <span id="sendBtnIcon">📤</span>
+              </button>
+              <button id="clearBtn" class="btn btn-secondary">清空</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">项目信息</div>
+        </div>
+        <div class="sidebar-content">
+          <div class="project-info" id="projectInfo">
+            <h3>当前项目</h3>
+            <p>请选择一个项目开始开发</p>
+          </div>
+
+          <div class="quick-actions">
+            <h3>快速操作</h3>
+            <button class="quick-action-btn" onclick="quickAction('install')">
+              📦 安装依赖
+            </button>
+            <button class="quick-action-btn" onclick="quickAction('build')">
+              🔨 构建项目
+            </button>
+            <button class="quick-action-btn" onclick="quickAction('test')">
+              🧪 运行测试
+            </button>
+            <button class="quick-action-btn" onclick="quickAction('git-status')">
+              📊 Git 状态
+            </button>
+            <button class="quick-action-btn" onclick="quickAction('deploy')">
+              🚀 部署项目
+            </button>
+          </div>
+
+          <div class="quick-actions" style="margin-top: 16px;">
+            <h3>系统监控</h3>
+            <button class="quick-action-btn" onclick="showSystemStats()">
+              📊 系统统计
+            </button>
+            <button class="quick-action-btn" onclick="showProjectStats()">
+              📈 项目统计
+            </button>
+            <button class="quick-action-btn" onclick="showServiceHealth()">
+              ❤️ 服务健康
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    let currentProject = '';
+    let isStreaming = false;
+    let eventSource = null;
+
+    // API 基础 URL
+    const API_BASE = window.location.origin;
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function () {
+      initializeApp();
+      setupEventListeners();
+      loadProjects();
+      updateWelcomeTime();
+    });
+
+    // 初始化应用
+    function initializeApp() {
+      // 设置输入框自动调整高度
+      const messageInput = document.getElementById('messageInput');
+      messageInput.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+      });
+
+      // 回车发送消息
+      messageInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    }
+
+    // 设置事件监听器
+    function setupEventListeners() {
+      document.getElementById('sendBtn').addEventListener('click', sendMessage);
+      document.getElementById('clearBtn').addEventListener('click', clearMessages);
+      document.getElementById('projectSelect').addEventListener('change', onProjectChange);
+    }
+
+    // 加载项目列表
+    async function loadProjects() {
+      try {
+        const response = await fetch(`${API_BASE}/api/projects`);
+        const data = await response.json();
+
+        if (data.success) {
+          const projectSelect = document.getElementById('projectSelect');
+          projectSelect.innerHTML = '<option value="">选择项目...</option>';
+
+          data.projects.forEach(project => {
+            const option = document.createElement('option');
+            option.value = project;
+            option.textContent = project;
+            projectSelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('加载项目失败:', error);
+        showError('加载项目列表失败');
+      }
+    }
+
+    // 项目选择变化
+    async function onProjectChange(event) {
+      const project = event.target.value;
+      currentProject = project;
+
+      if (project) {
+        await loadProjectInfo(project);
+        updateProjectInfo(project);
+      } else {
+        updateProjectInfo('');
+      }
+    }
+
+    // 加载项目信息
+    async function loadProjectInfo(project) {
+      try {
+        const response = await fetch(`${API_BASE}/api/projects/${project}`);
+        const data = await response.json();
+
+        if (data.success) {
+          updateProjectInfo(project, data.project);
+        }
+      } catch (error) {
+        console.error('加载项目信息失败:', error);
+      }
+    }
+
+    // 更新项目信息显示
+    function updateProjectInfo(project, info = null) {
+      const projectInfo = document.getElementById('projectInfo');
+
+      if (project && info) {
+        projectInfo.innerHTML = `
+          <h3>${project}</h3>
+          <p><strong>路径:</strong> ${info.path}</p>
+          <p><strong>状态:</strong> <span class="project-status ${info.exists ? 'status-active' : 'status-inactive'}">${info.exists ? '活跃' : '未找到'}</span></p>
+          <p><strong>Package.json:</strong> ${info.hasPackageJson ? '✅' : '❌'}</p>
+          <p><strong>Node Modules:</strong> ${info.hasNodeModules ? '✅' : '❌'}</p>
+        `;
+      } else if (project) {
+        projectInfo.innerHTML = `
+          <h3>${project}</h3>
+          <p>正在加载项目信息...</p>
+        `;
+      } else {
+        projectInfo.innerHTML = `
+          <h3>当前项目</h3>
+          <p>请选择一个项目开始开发</p>
+        `;
+      }
+    }
+
+    // 发送消息
+    async function sendMessage() {
+      const messageInput = document.getElementById('messageInput');
+      const message = messageInput.value.trim();
+
+      if (!message) return;
+
+      if (!currentProject) {
+        showError('请先选择一个项目');
+        return;
+      }
+
+      // 添加用户消息到界面
+      addMessage('user', message);
+      messageInput.value = '';
+      messageInput.style.height = 'auto';
+
+      // 设置发送按钮状态
+      setSendButtonState(true);
+
+      try {
+        // 发送请求到后端
+        const response = await fetch(`${API_BASE}/api/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            project: currentProject,
+            prompt: message
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 处理流式响应
+        await handleStreamingResponse(response);
+
+      } catch (error) {
+        console.error('发送消息失败:', error);
+        showError('发送消息失败: ' + error.message);
+        setSendButtonState(false);
+      }
+    }
+
+    // 处理流式响应
+    async function handleStreamingResponse(response) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      // 创建流式消息容器
+      const streamingContainer = createStreamingMessage();
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // 保留最后一个不完整的行
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                updateStreamingMessage(streamingContainer, data);
+              } catch (e) {
+                // 忽略解析错误
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+        setSendButtonState(false);
+      }
+    }
+
+    // 创建流式消息容器
+    function createStreamingMessage() {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message assistant';
+      messageDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+          <div class="streaming-message" id="streamingContent"></div>
+          <div class="message-time" id="streamingTime"></div>
+        </div>
+      `;
+
+      document.getElementById('chatMessages').appendChild(messageDiv);
+      scrollToBottom();
+
+      return messageDiv;
+    }
+
+    // 更新流式消息
+    function updateStreamingMessage(container, data) {
+      const content = container.querySelector('#streamingContent');
+      const time = container.querySelector('#streamingTime');
+
+      if (data.type === 'start') {
+        content.innerHTML = '<div class="log-line log-info">🚀 ' + data.message + '</div>';
+        time.textContent = new Date().toLocaleTimeString();
+      } else if (data.type === 'data') {
+        const logLine = document.createElement('div');
+        logLine.className = 'log-line';
+
+        if (data.message.includes('[ERROR]')) {
+          logLine.className += ' log-error';
+        } else if (data.message.includes('[WARNING]')) {
+          logLine.className += ' log-warning';
+        } else {
+          logLine.className += ' log-info';
+        }
+
+        logLine.textContent = data.message;
+        content.appendChild(logLine);
+        scrollToBottom();
+      } else if (data.type === 'complete') {
+        content.innerHTML += '<div class="log-line log-info">✅ ' + data.message + '</div>';
+        time.textContent = new Date().toLocaleTimeString();
+      } else if (data.type === 'error') {
+        content.innerHTML += '<div class="log-line log-error">❌ ' + data.message + '</div>';
+        time.textContent = new Date().toLocaleTimeString();
+      }
+    }
+
+    // 添加消息到界面
+    function addMessage(type, content) {
+      const messagesContainer = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+
+      const avatar = type === 'user' ? '👤' : '🤖';
+      const time = new Date().toLocaleTimeString();
+
+      messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+          <div>${content}</div>
+          <div class="message-time">${time}</div>
+        </div>
+      `;
+
+      messagesContainer.appendChild(messageDiv);
+      scrollToBottom();
+    }
+
+    // 快速操作
+    async function quickAction(action) {
+      if (!currentProject) {
+        showError('请先选择一个项目');
+        return;
+      }
+
+      const actions = {
+        'install': () => executeCommand('install', '安装项目依赖'),
+        'build': () => executeCommand('build', '构建项目'),
+        'test': () => executeCommand('test', '运行测试'),
+        'git-status': () => showGitStatus(),
+        'deploy': () => deployProject()
+      };
+
+      if (actions[action]) {
+        await actions[action]();
+      }
+    }
+
+    // 执行命令
+    async function executeCommand(command, description) {
+      addMessage('assistant', `正在${description}...`);
+
+      try {
+        const response = await fetch(`${API_BASE}/api/stream/command`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            project: currentProject,
+            command: command,
+            type: command
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        await handleStreamingResponse(response);
+      } catch (error) {
+        console.error('执行命令失败:', error);
+        showError('执行命令失败: ' + error.message);
+      }
+    }
+
+    // 显示 Git 状态
+    async function showGitStatus() {
+      try {
+        const response = await fetch(`${API_BASE}/api/git/${currentProject}/branches`);
+        const data = await response.json();
+
+        if (data.success) {
+          addMessage('assistant', `当前分支: ${data.branches.join(', ')}`);
+        }
+      } catch (error) {
+        console.error('获取 Git 状态失败:', error);
+        showError('获取 Git 状态失败');
+      }
+    }
+
+    // 部署项目
+    async function deployProject() {
+      addMessage('assistant', '正在部署项目到 Netlify...');
+
+      try {
+        const response = await fetch(`${API_BASE}/api/deploy`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            project: currentProject
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          addMessage('assistant', `部署成功！访问地址: ${data.url}`);
+        } else {
+          showError('部署失败: ' + data.error);
+        }
+      } catch (error) {
+        console.error('部署失败:', error);
+        showError('部署失败: ' + error.message);
+      }
+    }
+
+    // 设置发送按钮状态
+    function setSendButtonState(loading) {
+      const sendBtn = document.getElementById('sendBtn');
+      const sendBtnText = document.getElementById('sendBtnText');
+      const sendBtnIcon = document.getElementById('sendBtnIcon');
+
+      if (loading) {
+        sendBtn.disabled = true;
+        sendBtnText.textContent = '处理中';
+        sendBtnIcon.innerHTML = '<div class="loading"></div>';
+      } else {
+        sendBtn.disabled = false;
+        sendBtnText.textContent = '发送';
+        sendBtnIcon.textContent = '📤';
+      }
+    }
+
+    // 清空消息
+    function clearMessages() {
+      const messagesContainer = document.getElementById('chatMessages');
+      messagesContainer.innerHTML = `
+        <div class="message assistant">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <div>欢迎使用 AI 开发助手！我可以帮你：</div>
+            <div style="margin-top: 8px;">
+              • 生成和修改代码<br>
+              • 进行代码审查和分析<br>
+              • 管理项目依赖和构建<br>
+              • 执行 Git 操作<br>
+              • 一键部署到 Netlify
+            </div>
+            <div class="message-time" id="welcomeTime"></div>
+          </div>
+        </div>
+      `;
+      updateWelcomeTime();
+    }
+
+    // 显示错误消息
+    function showError(message) {
+      const messagesContainer = document.getElementById('chatMessages');
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = message;
+      messagesContainer.appendChild(errorDiv);
+      scrollToBottom();
+    }
+
+    // 显示成功消息
+    function showSuccess(message) {
+      const messagesContainer = document.getElementById('chatMessages');
+      const successDiv = document.createElement('div');
+      successDiv.className = 'success-message';
+      successDiv.textContent = message;
+      messagesContainer.appendChild(successDiv);
+      scrollToBottom();
+    }
+
+    // 滚动到底部
+    function scrollToBottom() {
+      const messagesContainer = document.getElementById('chatMessages');
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // 更新欢迎时间
+    function updateWelcomeTime() {
+      const welcomeTime = document.getElementById('welcomeTime');
+      if (welcomeTime) {
+        welcomeTime.textContent = new Date().toLocaleTimeString();
+      }
+    }
+
+    // 检查连接状态
+    function checkConnection() {
+      fetch(`${API_BASE}/health`)
+        .then(response => response.json())
+        .then(data => {
+          const statusElement = document.getElementById('connectionStatus');
+          const dotElement = document.querySelector('.status-dot');
+
+          if (data.status === 'ok') {
+            statusElement.textContent = '已连接';
+            dotElement.style.background = '#4ade80';
+          } else {
+            statusElement.textContent = '连接异常';
+            dotElement.style.background = '#ef4444';
+          }
+        })
+        .catch(error => {
+          const statusElement = document.getElementById('connectionStatus');
+          const dotElement = document.querySelector('.status-dot');
+          statusElement.textContent = '连接失败';
+          dotElement.style.background = '#ef4444';
+        });
+    }
+
+    // 定期检查连接状态
+    setInterval(checkConnection, 30000);
+    checkConnection();
+
+    // 监控面板功能
+    async function showSystemStats() {
+      try {
+        const response = await fetch(`${API_BASE}/api/monitor/stats`);
+        const data = await response.json();
+
+        if (data.success) {
+          const stats = data.stats;
+          let message = '📊 系统统计信息:\n\n';
+          message += `⏱️ 运行时间: ${stats.uptime}\n`;
+          message += `💾 内存使用: ${stats.memory_usage.alloc_mb}MB (总分配: ${stats.memory_usage.total_alloc_mb}MB)\n`;
+          message += `💽 磁盘使用: ${stats.disk_usage.workspace_size_mb}MB\n`;
+          message += `🖥️ CPU核心: ${stats.cpu_usage.num_cpu} (Goroutines: ${stats.cpu_usage.num_goroutines})\n`;
+          message += `📁 项目总数: ${stats.project_stats.total_projects} (活跃: ${stats.project_stats.active_projects})\n`;
+          message += `🔧 服务状态: ${JSON.stringify(stats.service_status, null, 2)}\n`;
+
+          addMessage('assistant', message);
+        } else {
+          showError('获取系统统计失败');
+        }
+      } catch (error) {
+        console.error('获取系统统计失败:', error);
+        showError('获取系统统计失败: ' + error.message);
+      }
+    }
+
+    async function showProjectStats() {
+      try {
+        const response = await fetch(`${API_BASE}/api/monitor/projects`);
+        const data = await response.json();
+
+        if (data.success) {
+          const stats = data.project_stats;
+          let message = '📈 项目统计信息:\n\n';
+          message += `📊 总项目数: ${stats.total_projects}\n`;
+          message += `✅ 活跃项目: ${stats.active_projects}\n`;
+          message += `📝 总提交数: ${stats.total_commits}\n`;
+          message += `🚀 总部署数: ${stats.total_deployments}\n\n`;
+
+          message += '📋 项目详情:\n';
+          stats.project_details.forEach(project => {
+            message += `• ${project.name}: ${project.exists ? '✅' : '❌'} `;
+            if (project.git_stats) {
+              message += `(提交: ${project.git_stats.commit_count}, 分支: ${project.git_stats.branch})\n`;
+            } else {
+              message += '\n';
+            }
+          });
+
+          addMessage('assistant', message);
+        } else {
+          showError('获取项目统计失败');
+        }
+      } catch (error) {
+        console.error('获取项目统计失败:', error);
+        showError('获取项目统计失败: ' + error.message);
+      }
+    }
+
+    async function showServiceHealth() {
+      try {
+        const response = await fetch(`${API_BASE}/api/monitor/health`);
+        const data = await response.json();
+
+        if (data.success) {
+          const health = data.health;
+          let message = '❤️ 服务健康状态:\n\n';
+          message += `🎯 整体状态: ${health.overall}\n\n`;
+
+          message += '🔧 服务详情:\n';
+          Object.entries(health.services).forEach(([service, info]) => {
+            const status = info.status;
+            const emoji = status === 'healthy' ? '✅' : '❌';
+            message += `${emoji} ${service}: ${status}`;
+            if (info.response_time) {
+              message += ` (响应时间: ${info.response_time})`;
+            }
+            if (info.available !== undefined) {
+              message += ` (可用: ${info.available ? '是' : '否'})`;
+            }
+            message += '\n';
+          });
+
+          addMessage('assistant', message);
+        } else {
+          showError('获取服务健康状态失败');
+        }
+      } catch (error) {
+        console.error('获取服务健康状态失败:', error);
+        showError('获取服务健康状态失败: ' + error.message);
+      }
+    }
+  </script>
+</body>
+
+</html>
