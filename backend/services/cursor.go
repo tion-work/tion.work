@@ -26,7 +26,7 @@ func NewCursorService(apiKey, workspace string) *CursorService {
 // ExecuteCommand 执行 Cursor Agent 命令
 func (s *CursorService) ExecuteCommand(project, prompt string, handler func(string)) error {
 	// 构建项目路径
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 
 	// 检查项目是否存在
 	if _, err := os.Stat(projectPath); os.IsNotExist(err) {
@@ -36,8 +36,8 @@ func (s *CursorService) ExecuteCommand(project, prompt string, handler func(stri
 	// 构建 Cursor Agent 命令
 	cmd := exec.Command("cursor-agent",
 		"--api-key", s.APIKey,
-		"--project", projectPath,
-		"--plan", prompt,
+		"--print",
+		prompt,
 	)
 
 	// 设置工作目录
@@ -96,7 +96,7 @@ func (s *CursorService) ExecuteCommand(project, prompt string, handler func(stri
 // ExecuteCommandStream 执行命令并流式返回结果
 func (s *CursorService) ExecuteCommandStream(project, prompt string, handler func(string)) error {
 	// 构建项目路径
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 
 	// 检查项目是否存在
 	if _, err := os.Stat(projectPath); os.IsNotExist(err) {
@@ -106,8 +106,8 @@ func (s *CursorService) ExecuteCommandStream(project, prompt string, handler fun
 	// 构建 Cursor Agent 命令
 	cmd := exec.Command("cursor-agent",
 		"--api-key", s.APIKey,
-		"--project", projectPath,
-		"--plan", prompt,
+		"--print",
+		prompt,
 	)
 
 	// 设置工作目录
@@ -165,7 +165,7 @@ func (s *CursorService) ExecuteCommandStream(project, prompt string, handler fun
 
 // GetProjectStatus 获取项目状态
 func (s *CursorService) GetProjectStatus(project string) (map[string]interface{}, error) {
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 
 	// 检查项目是否存在
 	if _, err := os.Stat(projectPath); os.IsNotExist(err) {
@@ -199,7 +199,7 @@ func (s *CursorService) GetProjectStatus(project string) (map[string]interface{}
 
 // ValidateProject 验证项目是否有效
 func (s *CursorService) ValidateProject(project string) error {
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 
 	// 检查项目目录是否存在
 	if _, err := os.Stat(projectPath); os.IsNotExist(err) {
@@ -217,11 +217,15 @@ func (s *CursorService) ValidateProject(project string) error {
 
 // GetAvailableProjects 获取可用项目列表
 func (s *CursorService) GetAvailableProjects() ([]string, error) {
-	frontendsPath := filepath.Join(s.Workspace, "frontends")
+	frontendsPath := filepath.Join(s.Workspace, "frontends", "frontends")
 
 	// 检查 frontends 目录是否存在
 	if _, err := os.Stat(frontendsPath); os.IsNotExist(err) {
-		return []string{}, fmt.Errorf("frontends 目录不存在: %s", frontendsPath)
+		// 如果 frontends/frontends 不存在，尝试 frontends 目录
+		frontendsPath = filepath.Join(s.Workspace, "frontends")
+		if _, err := os.Stat(frontendsPath); os.IsNotExist(err) {
+			return []string{}, fmt.Errorf("frontends 目录不存在: %s", frontendsPath)
+		}
 	}
 
 	// 读取目录内容
@@ -248,7 +252,7 @@ func (s *CursorService) GetAvailableProjects() ([]string, error) {
 
 // InstallDependencies 安装项目依赖
 func (s *CursorService) InstallDependencies(project string) error {
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 
 	// 检查项目是否存在
 	if err := s.ValidateProject(project); err != nil {
@@ -269,7 +273,7 @@ func (s *CursorService) InstallDependencies(project string) error {
 
 // BuildProject 构建项目
 func (s *CursorService) BuildProject(project string) error {
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 
 	// 检查项目是否存在
 	if err := s.ValidateProject(project); err != nil {

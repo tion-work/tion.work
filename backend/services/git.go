@@ -288,13 +288,13 @@ func (s *GitService) ResetChanges(repoPath string) error {
 
 // GetProjectGitStatus 获取项目 Git 状态
 func (s *GitService) GetProjectGitStatus(project string) (map[string]interface{}, error) {
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 	return s.GetStatus(projectPath)
 }
 
 // CommitProject 提交项目更改
 func (s *GitService) CommitProject(project, message string) error {
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 
 	// 添加所有更改
 	if err := s.AddFiles(projectPath, "."); err != nil {
@@ -311,6 +311,6 @@ func (s *GitService) CommitProject(project, message string) error {
 
 // PushProject 推送项目更改
 func (s *GitService) PushProject(project, branch string) error {
-	projectPath := filepath.Join(s.Workspace, "frontends", project)
+	projectPath := filepath.Join(s.Workspace, "frontends", "frontends", project)
 	return s.Push(projectPath, branch)
 }

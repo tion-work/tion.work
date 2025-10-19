@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
  * React Hooks 示例组件
@@ -16,9 +16,9 @@ interface HooksExampleProps {
   onCountChange?: (count: number) => void;
 }
 
-const HooksExample: React.FC<HooksExampleProps> = ({ 
-  initialCount = 0, 
-  onCountChange 
+const HooksExample: React.FC<HooksExampleProps> = ({
+  initialCount = 0,
+  onCountChange
 }) => {
   // useState - 状态管理
   const [count, setCount] = useState(initialCount);
@@ -52,17 +52,17 @@ const HooksExample: React.FC<HooksExampleProps> = ({
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       // 模拟 API 调用
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       const mockUsers: User[] = [
         { id: 1, name: '张三', email: 'zhangsan@example.com' },
         { id: 2, name: '李四', email: 'lisi@example.com' },
         { id: 3, name: '王五', email: 'wangwu@example.com' },
       ];
-      
+
       setUsers(mockUsers);
     } catch (err) {
       setError('获取用户数据失败');
@@ -133,7 +133,7 @@ const HooksExample: React.FC<HooksExampleProps> = ({
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
       <h2>React Hooks 示例</h2>
-      
+
       {/* 计数器部分 */}
       <div style={{ marginBottom: '20px' }}>
         <h3>计数器 (useState)</h3>
@@ -149,9 +149,9 @@ const HooksExample: React.FC<HooksExampleProps> = ({
       {/* 输入框部分 */}
       <div style={{ marginBottom: '20px' }}>
         <h3>输入框 (useRef)</h3>
-        <input 
+        <input
           ref={inputRef}
-          type="text" 
+          type="text"
           placeholder="点击按钮聚焦到这里"
           style={{ marginRight: '10px' }}
         />
@@ -191,18 +191,18 @@ const HooksExample: React.FC<HooksExampleProps> = ({
           }
         }}>
           <div style={{ marginBottom: '10px' }}>
-            <input 
-              name="name" 
-              type="text" 
-              placeholder="姓名" 
-              required 
+            <input
+              name="name"
+              type="text"
+              placeholder="姓名"
+              required
               style={{ marginRight: '10px' }}
             />
-            <input 
-              name="email" 
-              type="email" 
-              placeholder="邮箱" 
-              required 
+            <input
+              name="email"
+              type="email"
+              placeholder="邮箱"
+              required
               style={{ marginRight: '10px' }}
             />
             <button type="submit">添加用户</button>

@@ -27,9 +27,9 @@ const HelloWorld = ({ name = 'World', message = 'Hello' }) => {
   }
 
   return (
-    <div style={{ 
-      padding: '20px', 
-      border: '1px solid #ccc', 
+    <div style={{
+      padding: '20px',
+      border: '1px solid #ccc',
       borderRadius: '8px',
       textAlign: 'center',
       maxWidth: '400px',
@@ -38,9 +38,9 @@ const HelloWorld = ({ name = 'World', message = 'Hello' }) => {
       <h2>{message}, {name}!</h2>
       <p>点击次数: {count}</p>
       <div style={{ marginTop: '10px' }}>
-        <button 
+        <button
           onClick={handleClick}
-          style={{ 
+          style={{
             marginRight: '10px',
             padding: '8px 16px',
             backgroundColor: '#007bff',
@@ -52,9 +52,9 @@ const HelloWorld = ({ name = 'World', message = 'Hello' }) => {
         >
           点击我
         </button>
-        <button 
+        <button
           onClick={toggleVisibility}
-          style={{ 
+          style={{
             padding: '8px 16px',
             backgroundColor: '#6c757d',
             color: 'white',

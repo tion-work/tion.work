@@ -181,4 +181,5 @@ log_info "📱 访问 http://localhost:${PORT:-8080} 开始使用"
 
 # 启动服务器
 log_info "🚀 启动 AI 开发助手服务器..."
+cd /app
 exec go run cmd/chat/main.go

@@ -31,7 +31,7 @@ RUN echo 'export PATH="/root/.local/bin:/usr/local/go/bin:$PATH"' >> /root/.bash
     echo 'alias cursor-agent="/root/.local/bin/cursor-agent"' >> /root/.bashrc
 
 # 设置工作目录
-WORKDIR /workspace
+WORKDIR /app
 
 # 复制 Go 模块文件
 COPY go.mod go.sum ./
@@ -46,7 +46,7 @@ COPY . .
 RUN go build -o chat-service cmd/chat/main.go
 
 # 复制聊天应用前端文件
-COPY templates/chat-app.html /workspace/templates/chat-app.html
+COPY templates/chat-app.html /app/templates/chat-app.html
 
 # 复制初始化脚本
 COPY scripts/init.sh /usr/local/bin/init.sh

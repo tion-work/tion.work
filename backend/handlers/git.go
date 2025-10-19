@@ -159,7 +159,7 @@ func (h *GitHandler) HandleCreateBranch(c *gin.Context) {
 	}
 
 	// 执行创建分支
-	projectPath := filepath.Join(h.gitService.Workspace, "frontends", req.Project)
+	projectPath := filepath.Join(h.gitService.Workspace, "frontends", "frontends", req.Project)
 	err := h.gitService.CreateBranch(projectPath, req.Branch)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, GitResponse{
@@ -204,7 +204,7 @@ func (h *GitHandler) HandleSwitchBranch(c *gin.Context) {
 	}
 
 	// 执行切换分支
-	projectPath := filepath.Join(h.gitService.Workspace, "frontends", req.Project)
+	projectPath := filepath.Join(h.gitService.Workspace, "frontends", "frontends", req.Project)
 	err := h.gitService.SwitchBranch(projectPath, req.Branch)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, GitResponse{
@@ -231,7 +231,7 @@ func (h *GitHandler) HandleGetBranches(c *gin.Context) {
 		return
 	}
 
-	projectPath := filepath.Join(h.gitService.Workspace, "frontends", project)
+	projectPath := filepath.Join(h.gitService.Workspace, "frontends", "frontends", project)
 	branches, err := h.gitService.GetBranches(projectPath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -258,7 +258,7 @@ func (h *GitHandler) HandleGetDiff(c *gin.Context) {
 		return
 	}
 
-	projectPath := filepath.Join(h.gitService.Workspace, "frontends", project)
+	projectPath := filepath.Join(h.gitService.Workspace, "frontends", "frontends", project)
 	diff, err := h.gitService.GetDiff(projectPath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -285,7 +285,7 @@ func (h *GitHandler) HandleResetChanges(c *gin.Context) {
 		return
 	}
 
-	projectPath := filepath.Join(h.gitService.Workspace, "frontends", project)
+	projectPath := filepath.Join(h.gitService.Workspace, "frontends", "frontends", project)
 	err := h.gitService.ResetChanges(projectPath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, GitResponse{
